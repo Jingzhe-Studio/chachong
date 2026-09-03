@@ -672,8 +672,12 @@ async function openFileResult(file: ManagedFile): Promise<void> {
   if (selectedBatchId === null) return;
   selectedBatchFile = file;
   selectedMatchId = null;
-  byId("result-file-name").textContent = file.name;
-  byId("result-file-path").textContent = file.relativePath;
+  const resultName = byId("result-file-name");
+  const resultPath = byId("result-file-path");
+  resultName.textContent = file.name;
+  resultName.title = file.name;
+  resultPath.textContent = file.relativePath;
+  resultPath.title = file.relativePath;
   clearComparison();
   try {
     matches = await invoke<FileMatchSummary[]>("list_file_matches", {
@@ -718,6 +722,7 @@ function appendMatchGroup(container: HTMLElement, title: string, group: FileMatc
     const name = document.createElement("strong");
     const score = document.createElement("b");
     name.textContent = match.sourceName;
+    name.title = match.sourceName;
     score.textContent = formatPercent(match.similarity);
     heading.append(name, score);
     const source = document.createElement("small");
@@ -753,12 +758,16 @@ async function selectMatch(match: FileMatchSummary): Promise<void> {
 function renderComparison(detail: MatchDetail, match: FileMatchSummary): void {
   byId("comparison-empty").classList.add("is-hidden");
   byId("comparison-content").classList.remove("is-hidden");
-  byId("comparison-title").textContent = match.sourceKind === "reference"
+  const comparisonTitle = match.sourceKind === "reference"
     ? `参考库：${match.sourceContainer}`
     : `批次内：${match.sourceWorkItemName ?? match.sourceContainer}`;
+  byId("comparison-title").textContent = comparisonTitle;
+  byId("comparison-title").title = comparisonTitle;
   byId("comparison-score").textContent = formatPercent(detail.similarity);
   byId("query-text-title").textContent = detail.queryFile.name;
+  byId("query-text-title").title = detail.queryFile.name;
   byId("source-text-title").textContent = detail.sourceFile.name;
+  byId("source-text-title").title = detail.sourceFile.name;
   currentRiskRegions = detail.riskRegions;
   byId("risk-summary").textContent = `${currentRiskRegions.length} 个匹配片段`;
   renderRiskNavigation();

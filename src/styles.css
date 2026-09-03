@@ -352,6 +352,8 @@ button:disabled {
 }
 
 .work-item-sort-control select {
+  width: 190px;
+  max-width: 100%;
   min-height: 32px;
   padding: 6px 28px 6px 9px;
   border: 1px solid var(--border);
@@ -411,6 +413,7 @@ button:disabled {
 
 .work-item-result {
   display: flex;
+  flex: none;
   align-items: stretch;
 }
 
@@ -419,8 +422,12 @@ button:disabled {
   min-width: 86px;
   justify-items: end;
   gap: 2px;
-  padding-left: 13px;
+  padding: 0 13px;
   border-left: 1px solid var(--border);
+}
+
+.work-item-scope-result:last-child {
+  padding-right: 0;
 }
 
 .work-item-scope-result strong {
@@ -623,7 +630,18 @@ button:disabled {
 }
 
 .file-result-heading {
+  min-width: 0;
   margin-bottom: 20px;
+}
+
+.file-result-heading > div {
+  min-width: 0;
+}
+
+.file-result-heading h2,
+.file-result-heading p {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .parse-status,
@@ -881,6 +899,7 @@ button:disabled {
 }
 
 .match-sidebar {
+  min-width: 0;
   padding: 17px 13px;
   border-right: 1px solid var(--border);
   background: var(--surface-subtle);
@@ -954,11 +973,15 @@ button:disabled {
 
 .match-item > span {
   display: flex;
+  min-width: 0;
+  align-items: baseline;
   justify-content: space-between;
   gap: 8px;
 }
 
 .match-item strong {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   font-size: 12px;
   text-overflow: ellipsis;
@@ -966,6 +989,7 @@ button:disabled {
 }
 
 .match-item b {
+  flex: none;
   color: #111;
   font-size: 12px;
 }
@@ -988,7 +1012,14 @@ button:disabled {
 }
 
 .comparison-heading {
+  min-width: 0;
   margin-bottom: 12px;
+}
+
+.comparison-heading > div {
+  display: flex;
+  min-width: 0;
+  align-items: center;
 }
 
 .comparison-heading strong,
@@ -996,7 +1027,15 @@ button:disabled {
   display: inline-block;
 }
 
+.comparison-heading strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .comparison-heading span {
+  flex: none;
   margin-left: 8px;
   padding: 3px 7px;
   border: 1px solid var(--border);
@@ -1008,6 +1047,7 @@ button:disabled {
 }
 
 .comparison-heading small {
+  flex: none;
   color: var(--muted);
   font-size: 10px;
 }
@@ -1057,6 +1097,7 @@ button:disabled {
 }
 
 .text-comparison h4 {
+  overflow: hidden;
   margin: 0;
   padding: 9px 11px;
   border: 1px solid var(--border);
@@ -1064,6 +1105,8 @@ button:disabled {
   color: #444;
   background: var(--surface-subtle);
   font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .text-comparison pre {
