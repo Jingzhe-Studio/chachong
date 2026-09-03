@@ -208,6 +208,8 @@ impl SqliteStore {
             name: name.into(),
             file_count: 0,
             ready_file_count: 0,
+            within_batch_highest_file_similarity: None,
+            reference_library_highest_file_similarity: None,
         })
     }
 
@@ -230,6 +232,8 @@ impl SqliteStore {
                 name: row.get(2)?,
                 file_count: row.get::<_, i64>(3)? as u64,
                 ready_file_count: row.get::<_, i64>(4)? as u64,
+                within_batch_highest_file_similarity: None,
+                reference_library_highest_file_similarity: None,
             })
         })?;
         rows.collect::<Result<Vec<_>, _>>().map_err(Into::into)
@@ -257,6 +261,8 @@ impl SqliteStore {
                         name: row.get(2)?,
                         file_count: row.get::<_, i64>(3)? as u64,
                         ready_file_count: row.get::<_, i64>(4)? as u64,
+                        within_batch_highest_file_similarity: None,
+                        reference_library_highest_file_similarity: None,
                     })
                 },
             )
@@ -553,6 +559,27 @@ impl SqliteStore {
         rows.collect::<Result<Vec<_>, _>>().map_err(Into::into)
     }
 
+    pub fn list_batch_file_analyses(
+        &self,
+        batch_id: BatchId,
+        algorithm_id: &str,
+    ) -> Result<Vec<StoredFileAnalysis>, StorageError> {
+        let connection = self.connection.lock()?;
+        let mut statement = connection.prepare(
+            "SELECT file_id, total_units
+             FROM detection_file_stats
+             WHERE batch_id = ?1 AND algorithm_id = ?2
+             ORDER BY file_id",
+        )?;
+        let rows = statement.query_map(params![batch_id.0 as i64, algorithm_id], |row| {
+            Ok(StoredFileAnalysis {
+                file_id: FileId(row.get::<_, i64>(0)? as u64),
+                total_units: row.get::<_, i64>(1)? as u64,
+            })
+        })?;
+        rows.collect::<Result<Vec<_>, _>>().map_err(Into::into)
+    }
+
     pub fn insert_comparison(&self, comparison: &NewComparison) -> Result<(), StorageError> {
         let (scope_type, scope_id) = scope_parts(comparison.scope);
         let matched_unit_ranges = serde_json::to_string(&comparison.matched_unit_ranges)?;
@@ -653,6 +680,36 @@ impl SqliteStore {
             params![batch_id.0 as i64, work_item_id.0 as i64, algorithm_id],
             map_match_summary,
         )?;
+        rows.collect::<Result<Vec<_>, _>>().map_err(Into::into)
+    }
+
+    pub fn list_batch_matches(
+        &self,
+        batch_id: BatchId,
+        algorithm_id: &str,
+    ) -> Result<Vec<StoredMatchSummary>, StorageError> {
+        let connection = self.connection.lock()?;
+        let mut statement = connection.prepare(
+            "SELECT r.id, r.query_file_id, r.source_file_id, m.name, m.relative_path,
+                    r.scope_type, r.scope_id, r.algorithm_id, r.similarity,
+                    r.matched_unit_count, r.matched_unit_ranges_json, r.risk_regions_json,
+                    CASE WHEN r.scope_type = 'reference' THEN rl.name ELSE b.name END,
+                    CASE WHEN r.scope_type = 'batch' THEN wi.id ELSE NULL END,
+                    CASE WHEN r.scope_type = 'batch' THEN wi.name ELSE NULL END
+             FROM comparison_results r
+             INNER JOIN managed_files m ON m.id = r.source_file_id
+             LEFT JOIN reference_libraries rl
+                    ON r.scope_type = 'reference' AND rl.id = r.scope_id
+             LEFT JOIN batches b
+                    ON r.scope_type = 'batch' AND b.id = r.scope_id
+             LEFT JOIN work_item_files source_wf
+                    ON r.scope_type = 'batch' AND source_wf.file_id = r.source_file_id
+             LEFT JOIN work_items wi ON wi.id = source_wf.work_item_id
+             WHERE r.batch_id = ?1 AND r.algorithm_id = ?2
+             ORDER BY r.query_file_id, r.similarity DESC, r.id",
+        )?;
+        let rows =
+            statement.query_map(params![batch_id.0 as i64, algorithm_id], map_match_summary)?;
         rows.collect::<Result<Vec<_>, _>>().map_err(Into::into)
     }
 

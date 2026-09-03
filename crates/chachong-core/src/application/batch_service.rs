@@ -91,8 +91,16 @@ pub struct HighestSimilaritySource {
 #[derive(Debug, Clone, Default, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WorkItemSimilarityOverview {
-    pub within_batch: SimilarityMetrics,
-    pub reference_library: SimilarityMetrics,
+    pub within_batch: SimilarityScopeOverview,
+    pub reference_library: SimilarityScopeOverview,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SimilarityScopeOverview {
+    pub highest_file_similarity: Option<f32>,
+    pub code_similarity: Option<f32>,
+    pub document_similarity: Option<f32>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -188,7 +196,74 @@ impl BatchService {
         &self,
         batch_id: BatchId,
     ) -> Result<Vec<WorkItemSummary>, ApplicationError> {
-        Ok(self.store.list_work_items(batch_id)?)
+        let mut items = self.store.list_work_items(batch_id)?;
+        let Some(batch) = self.store.find_batch(batch_id)? else {
+            return Ok(items);
+        };
+        if batch.detection_status != DetectionStatus::Ready {
+            return Ok(items);
+        }
+        let Some(algorithm_id) = batch.algorithm_id.as_deref() else {
+            return Ok(items);
+        };
+
+        let totals: HashMap<_, _> = self
+            .store
+            .list_batch_file_analyses(batch_id, algorithm_id)?
+            .into_iter()
+            .map(|analysis| (analysis.file_id, analysis.total_units))
+            .collect();
+        let matches = self.store.list_batch_matches(batch_id, algorithm_id)?;
+        let mut matches_by_file: HashMap<FileId, Vec<&StoredMatchSummary>> = HashMap::new();
+        for item in &matches {
+            matches_by_file
+                .entry(item.query_file_id)
+                .or_default()
+                .push(item);
+        }
+        let positions: HashMap<_, _> = items
+            .iter()
+            .enumerate()
+            .map(|(index, item)| (item.id, index))
+            .collect();
+
+        for record in self.store.list_batch_file_records(batch_id)? {
+            if record.file.parse_status != ParseStatus::Ready {
+                continue;
+            }
+            let Some(total_units) = totals.get(&record.file.id).copied() else {
+                continue;
+            };
+            let Some(index) = positions.get(&record.work_item_id).copied() else {
+                continue;
+            };
+            let file_totals = HashMap::from([(record.file.id, total_units)]);
+            let file_matches = matches_by_file.get(&record.file.id);
+            let within_batch = aggregate_similarity_metrics(
+                &file_totals,
+                file_matches
+                    .into_iter()
+                    .flat_map(|matches| matches.iter().copied()),
+                MetricsScope::WithinBatch,
+            );
+            let reference_library = aggregate_similarity_metrics(
+                &file_totals,
+                file_matches
+                    .into_iter()
+                    .flat_map(|matches| matches.iter().copied()),
+                MetricsScope::ReferenceLibrary,
+            );
+            update_max(
+                &mut items[index].within_batch_highest_file_similarity,
+                within_batch.similarity,
+            );
+            update_max(
+                &mut items[index].reference_library_highest_file_similarity,
+                reference_library.similarity,
+            );
+        }
+
+        Ok(items)
     }
 
     pub fn get_work_item(
@@ -205,12 +280,21 @@ impl BatchService {
         work_item_id: WorkItemId,
     ) -> Result<Vec<WorkItemFileView>, ApplicationError> {
         let item = self.get_work_item(work_item_id)?;
-        let files = self.store.list_work_item_files(work_item_id)?;
-        let Some(algorithm_id) = self
+        let algorithm_id = self
             .store
             .find_batch(item.batch_id)?
-            .and_then(|batch| batch.algorithm_id)
-        else {
+            .and_then(|batch| batch.algorithm_id);
+        self.list_work_item_files_for(item.batch_id, work_item_id, algorithm_id.as_deref())
+    }
+
+    fn list_work_item_files_for(
+        &self,
+        batch_id: BatchId,
+        work_item_id: WorkItemId,
+        algorithm_id: Option<&str>,
+    ) -> Result<Vec<WorkItemFileView>, ApplicationError> {
+        let files = self.store.list_work_item_files(work_item_id)?;
+        let Some(algorithm_id) = algorithm_id else {
             return Ok(files
                 .into_iter()
                 .map(|file| WorkItemFileView {
@@ -222,13 +306,13 @@ impl BatchService {
         };
         let totals: HashMap<_, _> = self
             .store
-            .list_work_item_file_analyses(item.batch_id, work_item_id, &algorithm_id)?
+            .list_work_item_file_analyses(batch_id, work_item_id, algorithm_id)?
             .into_iter()
             .map(|analysis| (analysis.file_id, analysis.total_units))
             .collect();
-        let matches =
-            self.store
-                .list_work_item_matches(item.batch_id, work_item_id, &algorithm_id)?;
+        let matches = self
+            .store
+            .list_work_item_matches(batch_id, work_item_id, algorithm_id)?;
         Ok(files
             .into_iter()
             .map(|file| {
@@ -263,26 +347,11 @@ impl BatchService {
         else {
             return Ok(WorkItemSimilarityOverview::default());
         };
-        let totals: HashMap<_, _> = self
-            .store
-            .list_work_item_file_analyses(item.batch_id, work_item_id, &algorithm_id)?
-            .into_iter()
-            .map(|analysis| (analysis.file_id, analysis.total_units))
-            .collect();
-        let matches =
-            self.store
-                .list_work_item_matches(item.batch_id, work_item_id, &algorithm_id)?;
+        let files =
+            self.list_work_item_files_for(item.batch_id, work_item_id, Some(&algorithm_id))?;
         Ok(WorkItemSimilarityOverview {
-            within_batch: aggregate_similarity_metrics(
-                &totals,
-                matches.iter(),
-                MetricsScope::WithinBatch,
-            ),
-            reference_library: aggregate_similarity_metrics(
-                &totals,
-                matches.iter(),
-                MetricsScope::ReferenceLibrary,
-            ),
+            within_batch: summarize_file_similarities(&files, MetricsScope::WithinBatch),
+            reference_library: summarize_file_similarities(&files, MetricsScope::ReferenceLibrary),
         })
     }
 
@@ -825,6 +894,32 @@ struct SourceAccumulator {
     ranges_by_file: HashMap<FileId, Vec<AnalysisUnitRange>>,
 }
 
+fn summarize_file_similarities(
+    files: &[WorkItemFileView],
+    scope: MetricsScope,
+) -> SimilarityScopeOverview {
+    let mut overview = SimilarityScopeOverview::default();
+    for view in files
+        .iter()
+        .filter(|view| view.file.parse_status == ParseStatus::Ready)
+    {
+        let similarity = match scope {
+            MetricsScope::WithinBatch => view.within_batch.similarity,
+            MetricsScope::ReferenceLibrary => view.reference_library.similarity,
+        };
+        update_max(&mut overview.highest_file_similarity, similarity);
+        match view.file.category {
+            FileCategory::Code => update_max(&mut overview.code_similarity, similarity),
+            FileCategory::Document => update_max(&mut overview.document_similarity, similarity),
+        }
+    }
+    overview
+}
+
+fn update_max(current: &mut Option<f32>, candidate: f32) {
+    *current = Some(current.map_or(candidate, |value| value.max(candidate)));
+}
+
 fn aggregate_similarity_metrics<'a>(
     totals: &HashMap<FileId, u64>,
     matches: impl Iterator<Item = &'a StoredMatchSummary>,
@@ -1114,6 +1209,63 @@ mod tests {
         assert_eq!(reference.source_count, 1);
     }
 
+    #[test]
+    fn summarizes_categories_by_their_highest_file_similarity() {
+        let files = vec![
+            test_file_view(FileId(1), FileCategory::Document, 0.0, 0.4, 10_127),
+            test_file_view(FileId(2), FileCategory::Code, 1.0, 0.2, 185),
+        ];
+
+        let within_batch = summarize_file_similarities(&files, MetricsScope::WithinBatch);
+        assert_eq!(within_batch.highest_file_similarity, Some(1.0));
+        assert_eq!(within_batch.code_similarity, Some(1.0));
+        assert_eq!(within_batch.document_similarity, Some(0.0));
+
+        let reference = summarize_file_similarities(&files, MetricsScope::ReferenceLibrary);
+        assert_eq!(reference.highest_file_similarity, Some(0.4));
+        assert_eq!(reference.code_similarity, Some(0.2));
+        assert_eq!(reference.document_similarity, Some(0.4));
+    }
+
+    fn test_file_view(
+        id: FileId,
+        category: FileCategory,
+        within_batch: f32,
+        reference_library: f32,
+        total_units: u64,
+    ) -> WorkItemFileView {
+        WorkItemFileView {
+            file: ManagedFile {
+                id,
+                name: format!("fixture-{}", id.0),
+                relative_path: format!("fixture-{}", id.0),
+                object_key: format!("objects/fixture-{}", id.0),
+                parsed_key: Some(format!("parsed/fixture-{}", id.0)),
+                content_hash: format!("fixture-{}", id.0),
+                extension: match category {
+                    FileCategory::Document => "pdf",
+                    FileCategory::Code => "rs",
+                }
+                .into(),
+                size_bytes: 0,
+                category,
+                parse_status: ParseStatus::Ready,
+                parse_error: None,
+                parser_id: Some("test".into()),
+            },
+            within_batch: SimilarityMetrics {
+                similarity: within_batch,
+                total_units,
+                ..SimilarityMetrics::default()
+            },
+            reference_library: SimilarityMetrics {
+                similarity: reference_library,
+                total_units,
+                ..SimilarityMetrics::default()
+            },
+        }
+    }
+
     fn stored_match(
         query_file_id: FileId,
         source_file_id: FileId,
@@ -1203,25 +1355,44 @@ mod tests {
                 .batches()
                 .get_work_item_similarity_overview(items[0].id)
                 .unwrap();
-            assert_eq!(overview.within_batch.source_count, 1, "{algorithm_id}");
-            assert_eq!(overview.reference_library.source_count, 1, "{algorithm_id}");
-            assert!(overview.within_batch.similarity > 0.9, "{algorithm_id}");
             assert!(
-                overview.reference_library.similarity > 0.9,
+                overview.within_batch.highest_file_similarity.unwrap() > 0.9,
                 "{algorithm_id}"
             );
             assert_eq!(
-                overview.within_batch.total_units,
-                overview.reference_library.total_units
+                overview.within_batch.code_similarity,
+                overview.within_batch.highest_file_similarity
+            );
+            assert_eq!(overview.within_batch.document_similarity, None);
+            assert!(
+                overview.reference_library.highest_file_similarity.unwrap() > 0.9,
+                "{algorithm_id}"
             );
             assert_eq!(
-                overview.within_batch.matched_units,
-                overview.within_batch.total_units
+                overview.reference_library.code_similarity,
+                overview.reference_library.highest_file_similarity
             );
+            assert_eq!(overview.reference_library.document_similarity, None);
             let file_view = core.batches().list_work_item_files(items[0].id).unwrap();
             assert_eq!(file_view[0].within_batch.source_count, 1, "{algorithm_id}");
             assert_eq!(
                 file_view[0].reference_library.source_count, 1,
+                "{algorithm_id}"
+            );
+            let listed_items = core.batches().list_work_items(imported.batch.id).unwrap();
+            let listed_item = listed_items
+                .iter()
+                .find(|item| item.id == items[0].id)
+                .unwrap();
+            assert!(
+                listed_item.within_batch_highest_file_similarity.unwrap() > 0.9,
+                "{algorithm_id}"
+            );
+            assert!(
+                listed_item
+                    .reference_library_highest_file_similarity
+                    .unwrap()
+                    > 0.9,
                 "{algorithm_id}"
             );
             let detail = core

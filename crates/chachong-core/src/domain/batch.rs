@@ -63,7 +63,7 @@ pub struct BatchSummary {
     pub detection_error: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WorkItemSummary {
     pub id: WorkItemId,
@@ -71,4 +71,8 @@ pub struct WorkItemSummary {
     pub name: String,
     pub file_count: u64,
     pub ready_file_count: u64,
+    #[serde(default)]
+    pub within_batch_highest_file_similarity: Option<f32>,
+    #[serde(default)]
+    pub reference_library_highest_file_similarity: Option<f32>,
 }

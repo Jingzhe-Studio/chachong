@@ -342,6 +342,24 @@ button:disabled {
   font-weight: 650;
 }
 
+.work-item-sort-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.work-item-sort-control select {
+  min-height: 32px;
+  padding: 6px 28px 6px 9px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text);
+  background: #fff;
+}
+
 .work-item-list,
 .result-file-list {
   overflow: hidden;
@@ -351,9 +369,10 @@ button:disabled {
 }
 
 .work-item-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
+  gap: 18px;
   width: 100%;
   padding: 14px 16px;
   border: 0;
@@ -374,9 +393,45 @@ button:disabled {
   background: var(--surface-subtle);
 }
 
-.work-item-row strong {
+.work-item-identity {
+  min-width: 0;
+}
+
+.work-item-identity strong,
+.work-item-identity small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.work-item-identity strong {
   margin-bottom: 3px;
   font-size: 14px;
+}
+
+.work-item-result {
+  display: flex;
+  align-items: stretch;
+}
+
+.work-item-scope-result {
+  display: grid;
+  min-width: 86px;
+  justify-items: end;
+  gap: 2px;
+  padding-left: 13px;
+  border-left: 1px solid var(--border);
+}
+
+.work-item-scope-result strong {
+  margin: 0;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+
+.work-item-scope-result small {
+  font-size: 10px;
 }
 
 .work-item-overview {
@@ -468,8 +523,7 @@ button:disabled {
 }
 
 .scope-primary-metric span,
-.scope-metric-list dt,
-.scope-highest-source small {
+.scope-metric-list dt {
   color: var(--muted);
   font-size: 10px;
 }
@@ -500,25 +554,6 @@ button:disabled {
   font-size: 13px;
   font-variant-numeric: tabular-nums;
   font-weight: 650;
-}
-
-.scope-metric-list .scope-highest-source {
-  grid-column: 1 / -1;
-  margin-top: 11px;
-  padding-top: 11px;
-  border-top: 1px solid var(--border);
-}
-
-.scope-highest-source dd {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.scope-highest-source small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .result-file-row {

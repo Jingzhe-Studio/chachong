@@ -50,8 +50,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     assert_eq!(batch_import.batch.work_item_count, 4);
     assert_eq!(batch_import.ready, 8, "all assignment files must parse");
 
+    let work_items = core.batches().list_work_items(batch_import.batch.id)?;
+    let peer_copy_item_id = work_items
+        .iter()
+        .find(|item| item.name == "student_03_peer_copy")
+        .expect("peer-copy work item must exist")
+        .id;
     let mut query_ids = HashMap::new();
-    for item in core.batches().list_work_items(batch_import.batch.id)? {
+    for item in work_items {
         for view in core.batches().list_work_item_files(item.id)? {
             query_ids.insert(view.file.relative_path.clone(), view.file.id);
         }
@@ -140,6 +146,39 @@ async fn main() -> Result<(), Box<dyn Error>> {
             "batch",
             "peer_shared_copy.py",
             0.999,
+        );
+
+        let peer_overview = core
+            .batches()
+            .get_work_item_similarity_overview(peer_copy_item_id)?;
+        assert_eq!(
+            peer_overview.within_batch.highest_file_similarity,
+            Some(1.0)
+        );
+        assert_eq!(peer_overview.within_batch.code_similarity, Some(1.0));
+        assert_eq!(peer_overview.within_batch.document_similarity, Some(0.0));
+        assert_eq!(
+            peer_overview.reference_library.highest_file_similarity,
+            Some(0.0)
+        );
+        assert_eq!(peer_overview.reference_library.code_similarity, Some(0.0));
+        assert_eq!(
+            peer_overview.reference_library.document_similarity,
+            Some(0.0)
+        );
+        let peer_list_item = core
+            .batches()
+            .list_work_items(batch_import.batch.id)?
+            .into_iter()
+            .find(|item| item.id == peer_copy_item_id)
+            .expect("peer-copy work item must remain listed");
+        assert_eq!(
+            peer_list_item.within_batch_highest_file_similarity,
+            Some(1.0)
+        );
+        assert_eq!(
+            peer_list_item.reference_library_highest_file_similarity,
+            Some(0.0)
         );
 
         println!(

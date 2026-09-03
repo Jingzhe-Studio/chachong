@@ -6,6 +6,12 @@ type FileCategory = "document" | "code";
 type ParseStatus = "pending" | "parsing" | "ready" | "failed";
 type DetectionStatus = "pending" | "running" | "ready" | "failed";
 type BatchView = "list" | "batch" | "workItem" | "file";
+type WorkItemSort =
+  | "within-batch-desc"
+  | "within-batch-asc"
+  | "reference-desc"
+  | "reference-asc"
+  | "name";
 
 interface AlgorithmInfo {
   id: string;
@@ -51,6 +57,8 @@ interface WorkItemSummary {
   name: string;
   fileCount: number;
   readyFileCount: number;
+  withinBatchHighestFileSimilarity: number | null;
+  referenceLibraryHighestFileSimilarity: number | null;
 }
 
 interface WorkItemFileView {
@@ -74,8 +82,14 @@ interface SimilarityMetrics {
 }
 
 interface WorkItemSimilarityOverview {
-  withinBatch: SimilarityMetrics;
-  referenceLibrary: SimilarityMetrics;
+  withinBatch: SimilarityScopeOverview;
+  referenceLibrary: SimilarityScopeOverview;
+}
+
+interface SimilarityScopeOverview {
+  highestFileSimilarity: number | null;
+  codeSimilarity: number | null;
+  documentSimilarity: number | null;
 }
 
 interface BatchImportSummary {
@@ -190,6 +204,7 @@ let queryRiskMarks = new Map<number, HTMLElement>();
 let sourceRiskMarks = new Map<number, HTMLElement>();
 let batchImportBusy = false;
 let detectionBusy = false;
+let workItemSort: WorkItemSort = "within-batch-desc";
 
 let libraries: ReferenceLibrarySummary[] = [];
 let referenceFiles: ManagedFile[] = [];
@@ -255,6 +270,10 @@ function initializeBatchActions(): void {
   byId("delete-batch").addEventListener("click", () => void deleteSelectedBatch());
   byId("run-detection").addEventListener("click", () => void runDetection());
   byId("algorithm-select").addEventListener("change", renderAlgorithmDescription);
+  byId("work-item-sort").addEventListener("change", (event) => {
+    workItemSort = (event.currentTarget as HTMLSelectElement).value as WorkItemSort;
+    renderWorkItems();
+  });
   byId("risk-region-select").addEventListener("change", (event) => {
     focusRiskRegion(Number((event.currentTarget as HTMLSelectElement).value));
   });
@@ -386,20 +405,62 @@ function renderAlgorithmDescription(): void {
 function renderWorkItems(): void {
   const list = byId("work-item-list");
   list.replaceChildren();
-  for (const item of workItems) {
+  for (const item of sortedWorkItems()) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "work-item-row";
     const identity = document.createElement("span");
+    identity.className = "work-item-identity";
     const name = document.createElement("strong");
     const meta = document.createElement("small");
     name.textContent = item.name;
     meta.textContent = `${item.readyFileCount}/${item.fileCount} 个文件可用`;
     identity.append(name, meta);
-    button.append(identity);
+    const result = document.createElement("span");
+    result.className = "work-item-result";
+    result.append(
+      workItemScopeResult("同批次", item.withinBatchHighestFileSimilarity),
+      workItemScopeResult("参考库", item.referenceLibraryHighestFileSimilarity),
+    );
+    button.append(identity, result);
     button.addEventListener("click", () => void openWorkItem(item.id));
     list.append(button);
   }
+}
+
+function workItemScopeResult(label: string, similarity: number | null): HTMLElement {
+  const metric = document.createElement("span");
+  metric.className = "work-item-scope-result";
+  const score = document.createElement("strong");
+  const caption = document.createElement("small");
+  score.textContent = formatOptionalPercent(similarity);
+  caption.textContent = `${label}最高`;
+  metric.append(score, caption);
+  return metric;
+}
+
+function sortedWorkItems(): WorkItemSummary[] {
+  if (workItemSort === "name") {
+    return [...workItems].sort(compareWorkItemNames);
+  }
+  const reference = workItemSort.startsWith("reference");
+  const direction = workItemSort.endsWith("desc") ? -1 : 1;
+  return [...workItems].sort((left, right) => {
+    const leftSimilarity = reference
+      ? left.referenceLibraryHighestFileSimilarity
+      : left.withinBatchHighestFileSimilarity;
+    const rightSimilarity = reference
+      ? right.referenceLibraryHighestFileSimilarity
+      : right.withinBatchHighestFileSimilarity;
+    if (leftSimilarity === null) return rightSimilarity === null ? compareWorkItemNames(left, right) : 1;
+    if (rightSimilarity === null) return -1;
+    const scoreOrder = (leftSimilarity - rightSimilarity) * direction;
+    return scoreOrder || compareWorkItemNames(left, right);
+  });
+}
+
+function compareWorkItemNames(left: WorkItemSummary, right: WorkItemSummary): number {
+  return left.name.localeCompare(right.name, "zh-CN", { numeric: true });
 }
 
 async function renameSelectedBatch(): Promise<void> {
@@ -509,20 +570,19 @@ function renderWorkItemOverview(): void {
   renderScopeMetrics("reference", ready ? workItemOverview!.referenceLibrary : null);
 }
 
-function renderScopeMetrics(prefix: "batch" | "reference", metrics: SimilarityMetrics | null): void {
-  byId(`${prefix}-overall-similarity`).textContent = metrics ? formatPercent(metrics.similarity) : "—";
-  byId(`${prefix}-matched-units`).textContent = metrics
-    ? `${formatInteger(metrics.matchedUnits)} / ${formatInteger(metrics.totalUnits)}`
-    : "—";
-  byId(`${prefix}-source-count`).textContent = metrics
-    ? `${formatInteger(metrics.sourceCount)} 个`
-    : "—";
-  byId(`${prefix}-highest-similarity`).textContent = metrics?.highestSource
-    ? formatPercent(metrics.highestSource.similarity)
-    : "—";
-  byId(`${prefix}-highest-source`).textContent = metrics?.highestSource
-    ? `${metrics.highestSource.name} · ${metrics.highestSource.container}`
-    : "";
+function renderScopeMetrics(
+  prefix: "batch" | "reference",
+  metrics: SimilarityScopeOverview | null,
+): void {
+  byId(`${prefix}-highest-file-similarity`).textContent = formatOptionalPercent(
+    metrics?.highestFileSimilarity ?? null,
+  );
+  byId(`${prefix}-code-similarity`).textContent = formatOptionalPercent(
+    metrics?.codeSimilarity ?? null,
+  );
+  byId(`${prefix}-document-similarity`).textContent = formatOptionalPercent(
+    metrics?.documentSimilarity ?? null,
+  );
 }
 
 function renderWorkItemFiles(): void {
@@ -1204,6 +1264,10 @@ function formatBytes(bytes: number): string {
 
 function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
+}
+
+function formatOptionalPercent(value: number | null): string {
+  return value === null ? "—" : formatPercent(value);
 }
 
 function formatInteger(value: number): string {
