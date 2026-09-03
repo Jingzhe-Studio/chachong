@@ -400,6 +400,7 @@ impl SqliteStore {
 }
 
 fn migrate(connection: &Connection) -> Result<(), StorageError> {
+    let prior_version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
     connection.execute_batch(
         "CREATE TABLE IF NOT EXISTS reference_libraries (
              id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -482,6 +483,9 @@ fn migrate(connection: &Connection) -> Result<(), StorageError> {
              scope_id INTEGER NOT NULL,
              algorithm_id TEXT NOT NULL,
              similarity REAL NOT NULL,
+             query_unit_count INTEGER NOT NULL,
+             matched_unit_count INTEGER NOT NULL,
+             matched_unit_ranges_json TEXT NOT NULL,
              risk_regions_json TEXT NOT NULL,
              created_at INTEGER NOT NULL,
              UNIQUE(batch_id, query_file_id, source_file_id, scope_type, scope_id, algorithm_id),
@@ -493,9 +497,64 @@ fn migrate(connection: &Connection) -> Result<(), StorageError> {
          CREATE INDEX IF NOT EXISTS idx_comparison_results_query
              ON comparison_results(batch_id, query_file_id, algorithm_id, similarity DESC);
 
-         PRAGMA user_version = 2;",
+         CREATE TABLE IF NOT EXISTS detection_file_stats (
+             batch_id INTEGER NOT NULL,
+             file_id INTEGER NOT NULL,
+             algorithm_id TEXT NOT NULL,
+             total_units INTEGER NOT NULL,
+             PRIMARY KEY(batch_id, file_id, algorithm_id),
+             FOREIGN KEY(batch_id) REFERENCES batches(id) ON DELETE CASCADE,
+             FOREIGN KEY(file_id) REFERENCES managed_files(id) ON DELETE CASCADE
+         );
+
+         CREATE INDEX IF NOT EXISTS idx_detection_file_stats_batch
+             ON detection_file_stats(batch_id, algorithm_id);",
     )?;
+
+    let mut result_schema_changed = false;
+    for (column, definition) in [
+        ("query_unit_count", "INTEGER NOT NULL DEFAULT 0"),
+        ("matched_unit_count", "INTEGER NOT NULL DEFAULT 0"),
+        ("matched_unit_ranges_json", "TEXT NOT NULL DEFAULT '[]'"),
+    ] {
+        if !table_has_column(connection, "comparison_results", column)? {
+            connection.execute(
+                &format!("ALTER TABLE comparison_results ADD COLUMN {column} {definition}"),
+                [],
+            )?;
+            result_schema_changed = true;
+        }
+    }
+
+    // Version 4 changes comparison semantics: matched ranges now require
+    // background-corpus IDF evidence. Old results must not be mixed with the new
+    // coverage metric even though the table shape is unchanged.
+    if prior_version < 4 || result_schema_changed {
+        connection.execute_batch(
+            "DELETE FROM comparison_results;
+             DELETE FROM detection_file_stats;
+             UPDATE batches
+             SET detection_status = 'pending', algorithm_id = NULL,
+                 detection_error = NULL;",
+        )?;
+    }
+    connection.pragma_update(None, "user_version", 4)?;
     Ok(())
+}
+
+fn table_has_column(
+    connection: &Connection,
+    table: &str,
+    column: &str,
+) -> Result<bool, StorageError> {
+    let mut statement = connection.prepare(&format!("PRAGMA table_info({table})"))?;
+    let names = statement.query_map([], |row| row.get::<_, String>(1))?;
+    for name in names {
+        if name? == column {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
 
 fn map_library(row: &Row<'_>) -> rusqlite::Result<ReferenceLibrary> {
@@ -662,6 +721,132 @@ mod tests {
         let reopened = SqliteStore::open(&layout).unwrap();
         let libraries = reopened.list_reference_libraries().unwrap();
         assert_eq!(libraries[0].library.name, "优秀报告");
+    }
+
+    #[test]
+    fn version_two_results_are_invalidated_when_unit_metrics_are_added() {
+        let directory = tempdir().unwrap();
+        let database = directory.path().join("legacy.sqlite3");
+        let connection = Connection::open(database).unwrap();
+        connection
+            .execute_batch(
+                "CREATE TABLE batches (
+                     id INTEGER PRIMARY KEY,
+                     name TEXT NOT NULL,
+                     detection_status TEXT NOT NULL,
+                     algorithm_id TEXT,
+                     detection_error TEXT,
+                     created_at INTEGER NOT NULL,
+                     updated_at INTEGER NOT NULL
+                 );
+                 CREATE TABLE comparison_results (
+                     id INTEGER PRIMARY KEY,
+                     batch_id INTEGER NOT NULL,
+                     query_file_id INTEGER NOT NULL,
+                     source_file_id INTEGER NOT NULL,
+                     scope_type TEXT NOT NULL,
+                     scope_id INTEGER NOT NULL,
+                     algorithm_id TEXT NOT NULL,
+                     similarity REAL NOT NULL,
+                     risk_regions_json TEXT NOT NULL,
+                     created_at INTEGER NOT NULL,
+                     UNIQUE(batch_id, query_file_id, source_file_id, scope_type, scope_id, algorithm_id)
+                 );
+                 INSERT INTO batches VALUES (1, '旧批次', 'ready', 'token-cosine', NULL, 0, 0);
+                 INSERT INTO comparison_results VALUES (
+                     1, 1, 1, 2, 'batch', 1, 'token-cosine', 0.5, '[]', 0
+                 );
+                 PRAGMA user_version = 2;",
+            )
+            .unwrap();
+
+        migrate(&connection).unwrap();
+
+        assert!(table_has_column(&connection, "comparison_results", "query_unit_count").unwrap());
+        assert!(
+            table_has_column(
+                &connection,
+                "comparison_results",
+                "matched_unit_ranges_json"
+            )
+            .unwrap()
+        );
+        let result_count: i64 = connection
+            .query_row("SELECT COUNT(*) FROM comparison_results", [], |row| {
+                row.get(0)
+            })
+            .unwrap();
+        assert_eq!(result_count, 0);
+        let status: (String, Option<String>) = connection
+            .query_row(
+                "SELECT detection_status, algorithm_id FROM batches WHERE id = 1",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(status, ("pending".into(), None));
+    }
+
+    #[test]
+    fn version_three_results_are_invalidated_when_idf_evidence_is_added() {
+        let directory = tempdir().unwrap();
+        let database = directory.path().join("weighted-evidence.sqlite3");
+        let connection = Connection::open(database).unwrap();
+        connection
+            .execute_batch(
+                "CREATE TABLE batches (
+                     id INTEGER PRIMARY KEY,
+                     name TEXT NOT NULL,
+                     detection_status TEXT NOT NULL,
+                     algorithm_id TEXT,
+                     detection_error TEXT,
+                     created_at INTEGER NOT NULL,
+                     updated_at INTEGER NOT NULL
+                 );
+                 CREATE TABLE comparison_results (
+                     id INTEGER PRIMARY KEY,
+                     batch_id INTEGER NOT NULL,
+                     query_file_id INTEGER NOT NULL,
+                     source_file_id INTEGER NOT NULL,
+                     scope_type TEXT NOT NULL,
+                     scope_id INTEGER NOT NULL,
+                     algorithm_id TEXT NOT NULL,
+                     similarity REAL NOT NULL,
+                     query_unit_count INTEGER NOT NULL,
+                     matched_unit_count INTEGER NOT NULL,
+                     matched_unit_ranges_json TEXT NOT NULL,
+                     risk_regions_json TEXT NOT NULL,
+                     created_at INTEGER NOT NULL,
+                     UNIQUE(batch_id, query_file_id, source_file_id, scope_type, scope_id, algorithm_id)
+                 );
+                 INSERT INTO batches VALUES (1, '旧批次', 'ready', 'token-cosine', NULL, 0, 0);
+                 INSERT INTO comparison_results VALUES (
+                     1, 1, 1, 2, 'batch', 1, 'token-cosine', 0.2, 100, 20, '[]', '[]', 0
+                 );
+                 PRAGMA user_version = 3;",
+            )
+            .unwrap();
+
+        migrate(&connection).unwrap();
+
+        let result_count: i64 = connection
+            .query_row("SELECT COUNT(*) FROM comparison_results", [], |row| {
+                row.get(0)
+            })
+            .unwrap();
+        assert_eq!(result_count, 0);
+        let status: (String, Option<String>) = connection
+            .query_row(
+                "SELECT detection_status, algorithm_id FROM batches WHERE id = 1",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(status, ("pending".into(), None));
+        let version: i64 = connection
+            .query_row("PRAGMA user_version", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(version, 4);
     }
 
     #[test]

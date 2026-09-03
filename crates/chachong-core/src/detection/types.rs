@@ -2,7 +2,7 @@ use std::{error::Error, fmt};
 
 use serde::Serialize;
 
-use crate::domain::{FileCategory, FileId, RiskRegion};
+use crate::domain::{AnalysisUnitRange, FileCategory, FileId, RiskRegion};
 
 #[derive(Debug, Clone, Copy, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -17,6 +17,7 @@ pub struct AlgorithmDescriptor {
 pub struct PreparedFile {
     pub file_id: FileId,
     pub format_version: u32,
+    pub analysis_unit_count: u64,
     pub payload: Vec<u8>,
 }
 
@@ -28,7 +29,15 @@ pub struct Candidate {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ComparisonEvidence {
+    /// Token coverage after corpus-frequency filtering; this is the user-facing
+    /// similarity percentage.
     pub similarity: f32,
+    /// Internal IDF-weighted coverage used to validate that a source carries
+    /// informative matching evidence. It is deliberately not a UI metric.
+    pub weighted_similarity: f32,
+    pub query_unit_count: u64,
+    pub matched_unit_count: u64,
+    pub matched_unit_ranges: Vec<AnalysisUnitRange>,
     pub risk_regions: Vec<RiskRegion>,
 }
 

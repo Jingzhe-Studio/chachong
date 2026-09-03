@@ -37,17 +37,122 @@
   "githubSource": {
     "repository": "https://github.com/TheAlgorithms/Python",
     "commit": "dc7d5ebfa4f29feac8d7d1cc485a25a90960b3aa",
-    "license": "MIT"
+    "license": "MIT",
+    "archiveUrl": "https://codeload.github.com/TheAlgorithms/Python/zip/dc7d5ebfa4f29feac8d7d1cc485a25a90960b3aa"
   },
+  "referenceCounts": {
+    "documents": 100,
+    "code": 100
+  },
+  "derivedDocumentCount": 98,
+  "selectedCodePaths": [
+    "sorts/merge_sort.py",
+    "searches/binary_search.py",
+    "audio_filters/butterworth_filter.py",
+    "audio_filters/equal_loudness_filter.py",
+    "audio_filters/iir_filter.py",
+    "audio_filters/show_response.py",
+    "backtracking/all_combinations.py",
+    "backtracking/all_permutations.py",
+    "backtracking/all_subsequences.py",
+    "backtracking/coloring.py",
+    "backtracking/combination_sum.py",
+    "backtracking/crossword_puzzle_solver.py",
+    "backtracking/generate_parentheses.py",
+    "backtracking/generate_parentheses_iterative.py",
+    "backtracking/hamiltonian_cycle.py",
+    "backtracking/knight_tour.py",
+    "backtracking/match_word_pattern.py",
+    "backtracking/minimax.py",
+    "backtracking/n_queens.py",
+    "backtracking/n_queens_math.py",
+    "backtracking/power_sum.py",
+    "backtracking/rat_in_maze.py",
+    "backtracking/sudoku.py",
+    "backtracking/sum_of_subsets.py",
+    "backtracking/word_break.py",
+    "backtracking/word_ladder.py",
+    "backtracking/word_search.py",
+    "bit_manipulation/binary_and_operator.py",
+    "bit_manipulation/binary_coded_decimal.py",
+    "bit_manipulation/binary_count_setbits.py",
+    "bit_manipulation/binary_count_trailing_zeros.py",
+    "bit_manipulation/binary_or_operator.py",
+    "bit_manipulation/binary_shifts.py",
+    "bit_manipulation/binary_twos_complement.py",
+    "bit_manipulation/binary_xor_operator.py",
+    "bit_manipulation/bitwise_addition_recursive.py",
+    "bit_manipulation/count_1s_brian_kernighan_method.py",
+    "bit_manipulation/count_number_of_one_bits.py",
+    "bit_manipulation/excess_3_code.py",
+    "bit_manipulation/find_previous_power_of_two.py",
+    "bit_manipulation/find_unique_number.py",
+    "bit_manipulation/gray_code_sequence.py",
+    "bit_manipulation/highest_set_bit.py",
+    "bit_manipulation/index_of_rightmost_set_bit.py",
+    "bit_manipulation/is_even.py",
+    "bit_manipulation/is_power_of_two.py",
+    "bit_manipulation/largest_pow_of_two_le_num.py",
+    "bit_manipulation/missing_number.py",
+    "bit_manipulation/numbers_different_signs.py",
+    "bit_manipulation/power_of_4.py",
+    "bit_manipulation/reverse_bits.py",
+    "bit_manipulation/single_bit_manipulation_operations.py",
+    "bit_manipulation/swap_all_odd_and_even_bits.py",
+    "blockchain/diophantine_equation.py",
+    "boolean_algebra/and_gate.py",
+    "boolean_algebra/imply_gate.py",
+    "boolean_algebra/karnaugh_map_simplification.py",
+    "boolean_algebra/multiplexer.py",
+    "boolean_algebra/nand_gate.py",
+    "boolean_algebra/nimply_gate.py",
+    "boolean_algebra/nor_gate.py",
+    "boolean_algebra/not_gate.py",
+    "boolean_algebra/or_gate.py",
+    "boolean_algebra/quine_mc_cluskey.py",
+    "boolean_algebra/xnor_gate.py",
+    "boolean_algebra/xor_gate.py",
+    "cellular_automata/conways_game_of_life.py",
+    "cellular_automata/game_of_life.py",
+    "cellular_automata/langtons_ant.py",
+    "cellular_automata/nagel_schrekenberg.py",
+    "cellular_automata/one_dimensional.py",
+    "cellular_automata/wa_tor.py",
+    "ciphers/a1z26.py",
+    "ciphers/affine_cipher.py",
+    "ciphers/atbash.py",
+    "ciphers/autokey.py",
+    "ciphers/baconian_cipher.py",
+    "ciphers/base16.py",
+    "ciphers/base32.py",
+    "ciphers/base64_cipher.py",
+    "ciphers/base85.py",
+    "ciphers/beaufort_cipher.py",
+    "ciphers/bifid.py",
+    "ciphers/brute_force_caesar_cipher.py",
+    "ciphers/caesar_cipher.py",
+    "ciphers/cryptomath_module.py",
+    "ciphers/decrypt_caesar_with_chi_squared.py",
+    "ciphers/deterministic_miller_rabin.py",
+    "ciphers/diffie.py",
+    "ciphers/diffie_hellman.py",
+    "ciphers/elgamal_key_generator.py",
+    "ciphers/enigma_machine2.py",
+    "ciphers/fractionated_morse_cipher.py",
+    "ciphers/gronsfeld_cipher.py",
+    "ciphers/hill_cipher.py",
+    "ciphers/mixed_keyword_cypher.py",
+    "ciphers/mono_alphabetic_ciphers.py",
+    "ciphers/morse_code.py",
+    "ciphers/onepad_cipher.py",
+    "ciphers/permutation_cipher.py"
+  ],
   "partialPdfPages": 3,
   "sourceSha256": {
     "arXiv:1604.05171v1": "5c6d5110b37d6a9bddf277bac1eb0a3045f29b5212bff7c8ba7fc4382172802e",
     "arXiv:1604.05177v1": "a1c975e25bb3170dd776a1dc39a3a77dc6b256e654315bf2cc84909178ed4b96",
     "arXiv:2002.09857v1": "722701dad9612ea49c415887981c9291f49db9a73427e839c2c243687da67013",
-    "TheAlgorithms/Python:sorts/merge_sort.py": "7a75a49451a2bb9f01a2c4579850fcf8674e0a18b96408842b93f027efa5121c",
-    "TheAlgorithms/Python:searches/binary_search.py": "40edb392027b4b9431369cf105f4c610eb406e0792dc6ccffdabb7d5c7453f74",
-    "TheAlgorithms/Python:maths/euclidean_distance.py": "00d03d949cc63271148cc57ad2ff164903a57b2e811ff8531f9ebf3260e770a2",
-    "TheAlgorithms/Python:LICENSE.md": "4395a1dc4bda1d6054c45b4d1230c709c7398e6d66f1d0aff4b22d95973bea56"
+    "TheAlgorithms/Python:archive": "134fe1cfa792af86f93129f3c6ef87ff2851cfdfce2fdcef36e94480bb5a5f52"
   },
   "files": [
     {
@@ -91,14 +196,24 @@
       "sha256": "00d03d949cc63271148cc57ad2ff164903a57b2e811ff8531f9ebf3260e770a2"
     },
     {
+      "path": "metadata/arxiv_excerpt_catalog.json",
+      "bytes": 16362,
+      "sha256": "62ea0a2717fa16417c64de79f3064e4921c194174e4bab9c5dec4bf94eef78af"
+    },
+    {
       "path": "metadata/expected_matches.json",
-      "bytes": 1936,
-      "sha256": "7efa034e2cf4953e8b3f96b8bc83eea71a14bae659b0fc87955e965f8f207fcc"
+      "bytes": 1977,
+      "sha256": "a7df9d224a36008de5037ae48826fcf68e60bb11c10549788bee99b6904da5b3"
+    },
+    {
+      "path": "metadata/reference_code_paths.json",
+      "bytes": 4104,
+      "sha256": "b2eada1a872ce6d9453a6f5fe74a8aa2e0b046206a10dc5f8d3d6d73347bdc6f"
     },
     {
       "path": "metadata/SOURCES.md",
-      "bytes": 1900,
-      "sha256": "e4e56032e18bcca54413a652618b6260f9dcb1a1ce7bdb2425f1a2157736dcf6"
+      "bytes": 2294,
+      "sha256": "d35cac6e78870f626b722fd4547bb61af6f699c777263ada6e830b6444f6ddec"
     },
     {
       "path": "metadata/TheAlgorithms-Python-LICENSE.md",
@@ -107,8 +222,498 @@
     },
     {
       "path": "README.md",
-      "bytes": 1329,
-      "sha256": "513d16d8842580094d515c9bdfbf23940c090d7b8938d81d691d290c83784b2b"
+      "bytes": 1697,
+      "sha256": "50d6158385182c41609b910d1c0cd84e484fd8cb9432b0ba55ddc7bbb48367e9"
+    },
+    {
+      "path": "reference_library/code/audio_filters/butterworth_filter.py",
+      "bytes": 8990,
+      "sha256": "5a5b30b4ba28c82cd05cdea807c85ec893490f8909b5904909c04b1b0b9fcc60"
+    },
+    {
+      "path": "reference_library/code/audio_filters/equal_loudness_filter.py",
+      "bytes": 7731,
+      "sha256": "fdc1d820272469d9d65d7147df6566f9251d81924189d55b1b350a43140a70ef"
+    },
+    {
+      "path": "reference_library/code/audio_filters/iir_filter.py",
+      "bytes": 4598,
+      "sha256": "1c8a18c65424ecad71b556b3a2e1bb8a6e42cfd49ddf8ba28bd0f4028ff118b5"
+    },
+    {
+      "path": "reference_library/code/audio_filters/show_response.py",
+      "bytes": 2594,
+      "sha256": "4f972e628506a57a3f342699836f9d52a3357e2e0d05397d2645401a23915e09"
+    },
+    {
+      "path": "reference_library/code/backtracking/all_combinations.py",
+      "bytes": 3481,
+      "sha256": "e6c22b86d971857ae11a8271944840f4542f1d53fbeb90f3e1ad5ead3515c297"
+    },
+    {
+      "path": "reference_library/code/backtracking/all_permutations.py",
+      "bytes": 2512,
+      "sha256": "3e8f5bf9bd68b13f07a132a26895a38ccbf68aa850872a32f2ef6c406d653b5a"
+    },
+    {
+      "path": "reference_library/code/backtracking/all_subsequences.py",
+      "bytes": 2211,
+      "sha256": "36d017e4973c8aee714f20449ae6a03e72875437919591c70641008ccc35f066"
+    },
+    {
+      "path": "reference_library/code/backtracking/coloring.py",
+      "bytes": 3450,
+      "sha256": "15bab5eeb0fb5f2c0b9af4ef4e0c00321af27d876f02e255dcc1680b08eed6d1"
+    },
+    {
+      "path": "reference_library/code/backtracking/combination_sum.py",
+      "bytes": 2270,
+      "sha256": "376bac453ba140719240d28c2099e6bb5bfc4e3159f24ca1561e1ee1e05dd3d7"
+    },
+    {
+      "path": "reference_library/code/backtracking/crossword_puzzle_solver.py",
+      "bytes": 3690,
+      "sha256": "83445c7422ca661e4a85abf8db676f3faa458e46805d0c95d1ae3a42cb0afc4b"
+    },
+    {
+      "path": "reference_library/code/backtracking/generate_parentheses.py",
+      "bytes": 2438,
+      "sha256": "e337db1a59e3060e6f400dd857ecf6e4eb73297e01f813fc3688442f840c1da0"
+    },
+    {
+      "path": "reference_library/code/backtracking/generate_parentheses_iterative.py",
+      "bytes": 2164,
+      "sha256": "c7c6d3ebcc121a832234ea83db3de74c57702f5873a4f808b778633571d190c8"
+    },
+    {
+      "path": "reference_library/code/backtracking/hamiltonian_cycle.py",
+      "bytes": 5835,
+      "sha256": "216ceb622f942554a53c6f5216e0fb54da1062ca25d3e068e7f49de9dcd856e7"
+    },
+    {
+      "path": "reference_library/code/backtracking/knight_tour.py",
+      "bytes": 2451,
+      "sha256": "9250a499d67b2d52ec39d3bd12da468ee90206b89591e5e177f39322bd4f3b61"
+    },
+    {
+      "path": "reference_library/code/backtracking/match_word_pattern.py",
+      "bytes": 1806,
+      "sha256": "f558846bc592a8fe5d85e917b5c488518555dc8926ae90d3991a730c7609a321"
+    },
+    {
+      "path": "reference_library/code/backtracking/minimax.py",
+      "bytes": 3057,
+      "sha256": "db2a80ce755fce1697083e7639235481e30dbd6b7d0e963ab771f0c8e7095bf0"
+    },
+    {
+      "path": "reference_library/code/backtracking/n_queens.py",
+      "bytes": 3293,
+      "sha256": "4b53309df68d5a302842d5076781d3e2e5a4f6f1c2c48a54792bb7e6f9a5bc4e"
+    },
+    {
+      "path": "reference_library/code/backtracking/n_queens_math.py",
+      "bytes": 4937,
+      "sha256": "c104b71127c3903ebd9317a32fefb451b167d08dc36a7963e2f509c4d57efa60"
+    },
+    {
+      "path": "reference_library/code/backtracking/power_sum.py",
+      "bytes": 2624,
+      "sha256": "19a2454ccb73cbd74a2d89f6c00a2b696a66d68980abf6cefcb4601a53e59c25"
+    },
+    {
+      "path": "reference_library/code/backtracking/rat_in_maze.py",
+      "bytes": 6563,
+      "sha256": "a86e721f8289b2a7e69aa42cfa755328163687e24c209cf2d85e43a96e594b20"
+    },
+    {
+      "path": "reference_library/code/backtracking/sudoku.py",
+      "bytes": 3958,
+      "sha256": "523aa86104ad9e9558ae8f197255f26b0f1235b666981c45689ee5cd1da53318"
+    },
+    {
+      "path": "reference_library/code/backtracking/sum_of_subsets.py",
+      "bytes": 2208,
+      "sha256": "abf5c7a1a84729dc93a16cdeaf7a272efb5084d0c80f06ea6fb654e20a0db46a"
+    },
+    {
+      "path": "reference_library/code/backtracking/word_break.py",
+      "bytes": 2146,
+      "sha256": "f7193b2658a593f9a1cc001ba8f69a9ef1c4fc27e6d08289dd54db7e6c2c1ee8"
+    },
+    {
+      "path": "reference_library/code/backtracking/word_ladder.py",
+      "bytes": 3728,
+      "sha256": "7d0fc8bdea25596069b8aeec6ffbe8f9b2116f83a67f23e2b99c5f944c5cf9f3"
+    },
+    {
+      "path": "reference_library/code/backtracking/word_search.py",
+      "bytes": 4426,
+      "sha256": "065a64303c6a607a5c9b476c72cd7c3ee53a0fdbe6ae408a995defcbb0d6ac15"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/binary_and_operator.py",
+      "bytes": 1410,
+      "sha256": "d3e44f2a0a376246ddb6e0169746fb7525e2efc6314efe7715f8b9db1dde8311"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/binary_coded_decimal.py",
+      "bytes": 705,
+      "sha256": "10f25bfc20d790e15343d1059107a1d31c9936bb1e680ec218f7950e8408001a"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/binary_count_setbits.py",
+      "bytes": 1110,
+      "sha256": "5eef0edc9a09a7eed56fdd01f3be14f55bd401f8427dd78e3511863f27ef7249"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/binary_count_trailing_zeros.py",
+      "bytes": 1234,
+      "sha256": "2c24ece275e4ef7e5a31c9deb2a98536938cc1ab39ec898b80d0a296c147ab9a"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/binary_or_operator.py",
+      "bytes": 1462,
+      "sha256": "40897c680f32e7211066c30ef846398260b14b9688e2b3c938c832a01a245dfa"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/binary_shifts.py",
+      "bytes": 3403,
+      "sha256": "ef056dbb755a8ef8eb458c9beebfe87c94131eeaae84f548bf05974982d5de2b"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/binary_twos_complement.py",
+      "bytes": 1121,
+      "sha256": "2a8f0bb265f8f51547c7a945895b69a1e9a368d5072bfccdd76b443088e7df70"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/binary_xor_operator.py",
+      "bytes": 1450,
+      "sha256": "fe24c4deccdadfb9ad8cee5c55c85472c6b4c09247cee03424826744b28059eb"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/bitwise_addition_recursive.py",
+      "bytes": 1594,
+      "sha256": "7abbbb778951abdcac62ef01261d59862dfbc3dee1e47a074495a6eba26d392e"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/count_1s_brian_kernighan_method.py",
+      "bytes": 1286,
+      "sha256": "705e7b1f66dcc523628b42ecd0f6b2c7c83ce903408b11fba90892f267bc37f3"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/count_number_of_one_bits.py",
+      "bytes": 2832,
+      "sha256": "20d9b1b9c165777a3dd7d272491b25318fc68de1c9b46a9ce0c3a7030762944f"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/excess_3_code.py",
+      "bytes": 628,
+      "sha256": "a28cb57eb76cb16b733f6ced33537013184a656c24c85cf579eb5e47c24695fd"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/find_previous_power_of_two.py",
+      "bytes": 967,
+      "sha256": "c4614c5b5da2ffa613b3aa057bc8e35f8f308a612188cf4fe1e04db65748e453"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/find_unique_number.py",
+      "bytes": 998,
+      "sha256": "397936c8ff65a64960ba52f4eb300f97a5abac4e884236912ea40e4f0a592bbb"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/gray_code_sequence.py",
+      "bytes": 2444,
+      "sha256": "7cdf9ce52efdbe2bb91d8f3e6cc8df7aab4eb9de7ff739a17c6b5fb524d03964"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/highest_set_bit.py",
+      "bytes": 850,
+      "sha256": "b615134f1947ac37053dbfc92c7137d82b10cc60478cb0cc936bfa5b8f7aeef8"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/index_of_rightmost_set_bit.py",
+      "bytes": 1483,
+      "sha256": "6cce20f15744c258f04da06f2f53ecad06734c56d609ddf6d8ba4bfc3feebd45"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/is_even.py",
+      "bytes": 834,
+      "sha256": "28796aa920f919e4bc6216ba91191c8a6ea5a25ce1d1c1d6fb58c6fc3ca5738f"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/is_power_of_two.py",
+      "bytes": 1310,
+      "sha256": "b4e383e03ea4cb7da1398cc1505e75990eee81bed24af62c10e15f1163a9ca23"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/largest_pow_of_two_le_num.py",
+      "bytes": 1332,
+      "sha256": "6776813e1a874b6abde673813ed842655c185b8645a6f186e16631add9869361"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/missing_number.py",
+      "bytes": 881,
+      "sha256": "c0c256efd45ef13ca1d8e7a34f49a10b753076253265378f429bea15da686394"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/numbers_different_signs.py",
+      "bytes": 856,
+      "sha256": "5fac3cf4b3a1e8c54cd58f98091e2c5192ff8d9c0a53cb572e75defbd109c850"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/power_of_4.py",
+      "bytes": 1493,
+      "sha256": "1873f8705b4c65a57afd6a2dcabd9bfaa682c625bad4efa8c935c99b9fc21e68"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/reverse_bits.py",
+      "bytes": 2328,
+      "sha256": "5ba1856dce9249771dd5c3ffe1c1b51983cc8a1f755b5cbf018022a1216da7d2"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/single_bit_manipulation_operations.py",
+      "bytes": 2304,
+      "sha256": "4487410dfe1b2e35fbbd228dbbe4f0a5db33fd91c7530bc5c23ebb399a7145ab"
+    },
+    {
+      "path": "reference_library/code/bit_manipulation/swap_all_odd_and_even_bits.py",
+      "bytes": 1893,
+      "sha256": "190ea9e5aae81d769e1ed2207b9e42a457acbb9034c26e56321b87d0d94bfedd"
+    },
+    {
+      "path": "reference_library/code/blockchain/diophantine_equation.py",
+      "bytes": 2741,
+      "sha256": "80a5f5a0322c3c0753213b9c07a836f052c9decbed6d03d0bdebc8047b02e8a9"
+    },
+    {
+      "path": "reference_library/code/boolean_algebra/and_gate.py",
+      "bytes": 1089,
+      "sha256": "c6e6d74333b27c5b8a97b15355cf2a0295263bca37487d4adfec46a6af95410b"
+    },
+    {
+      "path": "reference_library/code/boolean_algebra/imply_gate.py",
+      "bytes": 2462,
+      "sha256": "346153eb7ecbbe5c03fd352c9da2b6e4fc5d8721da82269a41cf41e43a3f5a6f"
+    },
+    {
+      "path": "reference_library/code/boolean_algebra/karnaugh_map_simplification.py",
+      "bytes": 1369,
+      "sha256": "9f39ae62c7a5a37dddb21986e6e1ab50b2aa0d2fdf31e1529e0755b716aef4d4"
+    },
+    {
+      "path": "reference_library/code/boolean_algebra/multiplexer.py",
+      "bytes": 1224,
+      "sha256": "7279542f216587c8f90597c21c189aaa5360bbb5e160284dec1d5365cfb3c276"
+    },
+    {
+      "path": "reference_library/code/boolean_algebra/nand_gate.py",
+      "bytes": 952,
+      "sha256": "02f924c38b7933c4ceb42d32872d8ee87bde3bc2c252bc69329c8d69f1dcd1f8"
+    },
+    {
+      "path": "reference_library/code/boolean_algebra/nimply_gate.py",
+      "bytes": 965,
+      "sha256": "4c696a219c4e415fcf14bc078b95e1115368c67f84b7ffce128509c6576e4c16"
+    },
+    {
+      "path": "reference_library/code/boolean_algebra/nor_gate.py",
+      "bytes": 1724,
+      "sha256": "aded137880a75729ab2a96b199431a7536415a8022feef262035a32bed6ab5a6"
+    },
+    {
+      "path": "reference_library/code/boolean_algebra/not_gate.py",
+      "bytes": 706,
+      "sha256": "15b05f5446dea6e7b91a6b62f4c490233c429a6d164c388abf245b41d92c5d9d"
+    },
+    {
+      "path": "reference_library/code/boolean_algebra/or_gate.py",
+      "bytes": 887,
+      "sha256": "24141b4e2becc0d3872aef6bfe6c3e36dbf697eaa88e4d0a63bf05871eea1783"
+    },
+    {
+      "path": "reference_library/code/boolean_algebra/quine_mc_cluskey.py",
+      "bytes": 4276,
+      "sha256": "6ecd7a799f534bcfc3026c35a0f38f910ed08e1391b4a032848b071f11988abf"
+    },
+    {
+      "path": "reference_library/code/boolean_algebra/xnor_gate.py",
+      "bytes": 966,
+      "sha256": "b54ca2b0377bc48473c97fa05234791e70aa51054fe328da324a15616d71f5c2"
+    },
+    {
+      "path": "reference_library/code/boolean_algebra/xor_gate.py",
+      "bytes": 887,
+      "sha256": "94c4f8e6ba73b07897423bc9a259bab5cbe89d8ce73de7a312a03c8ccf08afef"
+    },
+    {
+      "path": "reference_library/code/cellular_automata/conways_game_of_life.py",
+      "bytes": 3163,
+      "sha256": "61995a1be572b9399fa88aa851fd65c4836b378656193ca2067f4eaca82a1b74"
+    },
+    {
+      "path": "reference_library/code/cellular_automata/game_of_life.py",
+      "bytes": 3027,
+      "sha256": "964cea7969b9823c6b92bf373691665a7fda6ce8c821bad2c0c2db639ce87a52"
+    },
+    {
+      "path": "reference_library/code/cellular_automata/langtons_ant.py",
+      "bytes": 3440,
+      "sha256": "33bdb6042a06458e1c73363ec5f374ec993c4b0fd6d8c317869bbe836e781e89"
+    },
+    {
+      "path": "reference_library/code/cellular_automata/nagel_schrekenberg.py",
+      "bytes": 5175,
+      "sha256": "d0da2677866418b014776c40ae2514e38eb3afa796ef95277b28a107247673ee"
+    },
+    {
+      "path": "reference_library/code/cellular_automata/one_dimensional.py",
+      "bytes": 2368,
+      "sha256": "49151221c0b03b42ddb9cedf8814d0d8b3feeb89222543491873bec47faad0e6"
+    },
+    {
+      "path": "reference_library/code/cellular_automata/wa_tor.py",
+      "bytes": 20556,
+      "sha256": "1ebcfd4b4a8425b114febc69b83a251415d80d8b1d2600f2c5d7ce1df0b269fb"
+    },
+    {
+      "path": "reference_library/code/ciphers/a1z26.py",
+      "bytes": 1284,
+      "sha256": "89c3129d8cd7810a0540f6e4396bdad171f1e1aaafbdb891431543f2c53bf14c"
+    },
+    {
+      "path": "reference_library/code/ciphers/affine_cipher.py",
+      "bytes": 3457,
+      "sha256": "d33fafea38dcb23ffcaf36103c49fce7b957d4f66e55e8a07c418276e85258da"
+    },
+    {
+      "path": "reference_library/code/ciphers/atbash.py",
+      "bytes": 1448,
+      "sha256": "515dd579c93adc1379f07a51465c50a0e4a54874c01fc5f5803a23c9fb55c196"
+    },
+    {
+      "path": "reference_library/code/ciphers/autokey.py",
+      "bytes": 4750,
+      "sha256": "ebe2caacf20420585a4613a850be42af00a36c404051004bfcec77cf03c4eaa7"
+    },
+    {
+      "path": "reference_library/code/ciphers/baconian_cipher.py",
+      "bytes": 2136,
+      "sha256": "d7ee175f277ded014d238f2ffc8986e64f0817145557802048f2827a01ece9e8"
+    },
+    {
+      "path": "reference_library/code/ciphers/base16.py",
+      "bytes": 2318,
+      "sha256": "1bfc4f0b2e9215597646482e96331032b93744c0a9e520a2ce574cdaf69f2c1d"
+    },
+    {
+      "path": "reference_library/code/ciphers/base32.py",
+      "bytes": 1426,
+      "sha256": "f3bffb2edc15d663c236c23b5a970aa70f41140b01fd317385899dc7806a8fde"
+    },
+    {
+      "path": "reference_library/code/ciphers/base64_cipher.py",
+      "bytes": 5036,
+      "sha256": "58a68aa6e646e276ae8215846b7410be3a7602eca9f89b332451eb12274960bf"
+    },
+    {
+      "path": "reference_library/code/ciphers/base85.py",
+      "bytes": 1867,
+      "sha256": "21b522cf5113df4f2c0897e70bef703213643573616c7b4742f8da1abf348479"
+    },
+    {
+      "path": "reference_library/code/ciphers/beaufort_cipher.py",
+      "bytes": 1940,
+      "sha256": "ec975b04d43f708440f3413cfde9c59f3aa63b13c75465ab17a477438bb1e284"
+    },
+    {
+      "path": "reference_library/code/ciphers/bifid.py",
+      "bytes": 3584,
+      "sha256": "c3a652c5762f1b984a16f3b397f9a87b2721cc04d7c2360cdb54b7c0c56ec32a"
+    },
+    {
+      "path": "reference_library/code/ciphers/brute_force_caesar_cipher.py",
+      "bytes": 1962,
+      "sha256": "65fb078ed60a6cf5c57b44bddc37def767d4fd5f2b3b2d3b0dfe8800aefee43d"
+    },
+    {
+      "path": "reference_library/code/ciphers/caesar_cipher.py",
+      "bytes": 7956,
+      "sha256": "aa9eb21da00ffdaf0ef800b83bb2dc47f10146694f02aa08165dd9f02c70eb09"
+    },
+    {
+      "path": "reference_library/code/ciphers/cryptomath_module.py",
+      "bytes": 432,
+      "sha256": "0bdc323a80b227bf8c74901807dae8b8967f194afd20c8de9ab2a82ff404b80e"
+    },
+    {
+      "path": "reference_library/code/ciphers/decrypt_caesar_with_chi_squared.py",
+      "bytes": 9535,
+      "sha256": "8c7d80cee2e52a0e2873b25a78c01691ca95b0182b05ea06fe7eeb1ad0335d91"
+    },
+    {
+      "path": "reference_library/code/ciphers/deterministic_miller_rabin.py",
+      "bytes": 4182,
+      "sha256": "e4f6cdaa76e757321fb20501e4d43eb884f1819c8ed1ab6451e2557b8cde3ef6"
+    },
+    {
+      "path": "reference_library/code/ciphers/diffie.py",
+      "bytes": 1584,
+      "sha256": "7aaa7db2e4493feaea1478d6801be05fc414486d8cfaee213c4e18486f480e45"
+    },
+    {
+      "path": "reference_library/code/ciphers/diffie_hellman.py",
+      "bytes": 12147,
+      "sha256": "256cf7b0afb25e3de10cf8585040127fec7f7d1f749a1fded650a4178a3e1fa1"
+    },
+    {
+      "path": "reference_library/code/ciphers/elgamal_key_generator.py",
+      "bytes": 2168,
+      "sha256": "5a89b8ae65f024555fb555253acebdb890ee2e3f5f8e759d61d30b4f57b49ffb"
+    },
+    {
+      "path": "reference_library/code/ciphers/enigma_machine2.py",
+      "bytes": 8933,
+      "sha256": "e0afc1fa8c0152d3bd8bc108f84ce60ba3a318067d20a9f535435661d1a25cf9"
+    },
+    {
+      "path": "reference_library/code/ciphers/fractionated_morse_cipher.py",
+      "bytes": 4003,
+      "sha256": "e42cc11d3a910d34364e1e071742a2eb65fa83e18fd94ed5816bfa9b27d2c391"
+    },
+    {
+      "path": "reference_library/code/ciphers/gronsfeld_cipher.py",
+      "bytes": 1220,
+      "sha256": "ced2f92bef995982d251ab8c0717cbaa64d667115d9a3bca5a8482908b1a86ba"
+    },
+    {
+      "path": "reference_library/code/ciphers/hill_cipher.py",
+      "bytes": 7301,
+      "sha256": "a0a835a6763801a00a032843646dafdd581bf46df5d08028246ddb1a0593b7b7"
+    },
+    {
+      "path": "reference_library/code/ciphers/mixed_keyword_cypher.py",
+      "bytes": 2556,
+      "sha256": "76248d58c078d61b1499782d0b05e124145ed47c842d6bb5b0b018b5debc75a9"
+    },
+    {
+      "path": "reference_library/code/ciphers/mono_alphabetic_ciphers.py",
+      "bytes": 1772,
+      "sha256": "496a0d8e50291852dc4e24db7e675477627d3497023b2c084686f7940a11ca70"
+    },
+    {
+      "path": "reference_library/code/ciphers/morse_code.py",
+      "bytes": 1713,
+      "sha256": "7fbc4386d942c5d3a6603cbeba9cf0e20a6ad5db6e75012e2cab765a086293ad"
+    },
+    {
+      "path": "reference_library/code/ciphers/onepad_cipher.py",
+      "bytes": 1855,
+      "sha256": "6160616d073ba2cf40f2374ba555bb2e82efeedbcbc5733a7ce0c79240d54fb5"
+    },
+    {
+      "path": "reference_library/code/ciphers/permutation_cipher.py",
+      "bytes": 4058,
+      "sha256": "46aa9290a284329b6a86618a2f753d50265bc93bf2330a4ec837528c0a0bb40d"
     },
     {
       "path": "reference_library/code/searches/binary_search.py",
@@ -129,6 +734,496 @@
       "path": "reference_library/documents/arxiv_1604.05177v1_jugular_pulse.pdf",
       "bytes": 495234,
       "sha256": "a1c975e25bb3170dd776a1dc39a3a77dc6b256e654315bf2cc84909178ed4b96"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_001.pdf",
+      "bytes": 2911,
+      "sha256": "1af61e34d297b10868716266537c0476d6dd3cfe6e18c2701da564000d621f4a"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_002.pdf",
+      "bytes": 2886,
+      "sha256": "1c8a610ea8d1a38a969fd790262b91b16e1e32be26404e8ec5681f09ff8e8cc2"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_003.pdf",
+      "bytes": 2894,
+      "sha256": "98a8dc8e531051a413b9d3f2424231cb2b4bd8179961ec54ed54da770726454c"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_004.pdf",
+      "bytes": 2847,
+      "sha256": "6f5cbacc71e623f6774d441e598c4088424563262018466c09f43f90eafb763a"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_005.pdf",
+      "bytes": 2781,
+      "sha256": "fa378d89bacbc05b7089a305d89e720b04dbf6090438de93bb6bb6b4c702ced4"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_006.pdf",
+      "bytes": 2724,
+      "sha256": "f6d8f7750c0d21024c3da67b3a865044ec5bacb433766c9d9c7589410acd766f"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_007.pdf",
+      "bytes": 2751,
+      "sha256": "662a53f7ded1e9f6d22512899d7e36b3b610467ae10143018dcb320200b14637"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_008.pdf",
+      "bytes": 2736,
+      "sha256": "055255cb3ac70592e24d3213c3223606a5c71cc86ca2fab0fe4a1152383b1ebc"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_009.pdf",
+      "bytes": 2756,
+      "sha256": "636fbc8eb299d64040c2d2133547e6838690a6ffe98801da90d4d01e93e5e8d7"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_010.pdf",
+      "bytes": 2774,
+      "sha256": "c1ee45251258c5409f89825011f2c7f637ece9983b95395e43954eda187e3b4c"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_011.pdf",
+      "bytes": 2767,
+      "sha256": "c93d46f3499e20de41c78c2e28cfb9f24d3176edc96ae819dbc170a3a344142a"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_012.pdf",
+      "bytes": 2728,
+      "sha256": "20791f927f67bc68cf47af4811a2b2132a7d2c41b70b81df4a4a029ba5568c21"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_013.pdf",
+      "bytes": 2707,
+      "sha256": "eecf4f66f9fa19fb05e5b0a7987f93e5b1de48ee9b82dbab15642c93ae91ad8e"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_014.pdf",
+      "bytes": 2689,
+      "sha256": "77bf3417eca8a2b708b16ccfea2a04dc031c57744ec5fa01a9b64c22e8ce1932"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_015.pdf",
+      "bytes": 2706,
+      "sha256": "03b1a1ef430502e8f8f5fae31838059df9a6093eae1f7dceca1fc2ba1e3e8cd2"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_016.pdf",
+      "bytes": 2647,
+      "sha256": "49b46e4cebbd78a0845ead0ad441fc74fe7b19cba8c19da490922d56d8693b21"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_017.pdf",
+      "bytes": 2593,
+      "sha256": "aa91ac05e2d017716090ac18626c58cfc39e5c9e54d64b319eb7368b12b377e1"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_018.pdf",
+      "bytes": 2601,
+      "sha256": "f9805fa716df20860cf3dadcddacef724ef676e6abcef35e6acdbec869a47b4d"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_019.pdf",
+      "bytes": 2622,
+      "sha256": "775c9173cf9a560473a102cb75dbc7755ba2fd6c6dfcb4a311ce4a8834b886fd"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_020.pdf",
+      "bytes": 2674,
+      "sha256": "881eb81494ae13d1f675706bf1dd472fdd36f08fd992d02d4af12c0907e0a0bb"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_021.pdf",
+      "bytes": 2684,
+      "sha256": "47c18a68cfc3424d4347b832cf4d30d611feb234da5ec59f1a20cc72a045bdda"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_022.pdf",
+      "bytes": 2686,
+      "sha256": "0c6cdb711b0a86bed00a563e88cec94167553e013de2a3da4fe320594cb32643"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_023.pdf",
+      "bytes": 2677,
+      "sha256": "ab63df9df698dadc0f6ff54c3c1771ec1e859bf4346fdc5df3f048bf02258253"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_024.pdf",
+      "bytes": 2654,
+      "sha256": "f62c2ebb53b5d29ca8077b72cb902b8014499b8526b5e1887e195e559433b563"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_025.pdf",
+      "bytes": 2638,
+      "sha256": "04f90397603ad0b47b2c29d1e74674e01ff2ba4654ee0220906be69eb855027a"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_026.pdf",
+      "bytes": 2581,
+      "sha256": "dca83651f4dd941a1dcf25fa060e665ca01209a67a38c58d4ef68847c8d1a53b"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_027.pdf",
+      "bytes": 2581,
+      "sha256": "ee279e264ce5dcb8b08876e104980756765a80238c3fed874df49335b1483e6b"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_028.pdf",
+      "bytes": 2543,
+      "sha256": "8d98777e8eb0f930c770d0b0c5a70aa2e5528f0334f81b588c51c9e175558a49"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_029.pdf",
+      "bytes": 2554,
+      "sha256": "69b3b9dcecb2658fa3dab7277efd4969a6ca5617670803ce85f45ebe3da2067f"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_030.pdf",
+      "bytes": 2607,
+      "sha256": "370b14703e4b9be8f7fd438f7a88316a2c35ceffe4c4c9fdde396613ecdc087e"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_031.pdf",
+      "bytes": 2642,
+      "sha256": "3a3eecc70c5be4c22097a66093efa431e5fa6c24f405abe4b2666a6ac10057ad"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_032.pdf",
+      "bytes": 2656,
+      "sha256": "8dce1cd512eefefb979b93a7fcbfa06f265f0d43d2f2cc7b1cbeddc1daf1b6d9"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_033.pdf",
+      "bytes": 2664,
+      "sha256": "b4a743de8dd026a37419984625173beb69937fa60fbb67e12f567e1aa1803b8c"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_034.pdf",
+      "bytes": 2664,
+      "sha256": "e6d060d332bdc61c88b595c7bbaf02e1a7ccfb80362ffb782fb53b816f0abd8c"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_035.pdf",
+      "bytes": 2681,
+      "sha256": "ee083f12deaa87a592369a94dd005f58ce799f3c1703a8008bb5570e68fdd506"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_036.pdf",
+      "bytes": 2709,
+      "sha256": "04728f30b980e501426c3a306ce21cfeb46a2e730e3be4ff315c3e04170295f7"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_037.pdf",
+      "bytes": 2694,
+      "sha256": "fe146dbec36e09eb374f81d566d0eb8c825e28dc692cf4e6603843d647a89a83"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_038.pdf",
+      "bytes": 2659,
+      "sha256": "363142075419ac84e065fe644930e7c8dffb3d1020baa89f8bf8436af357e56c"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_039.pdf",
+      "bytes": 2698,
+      "sha256": "94c53d1a71fddd321126d07d7dc9f3576385568097f12cb9366985e774f3f97a"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_040.pdf",
+      "bytes": 2773,
+      "sha256": "f55f4788b9d97f5579a3fdfb9be071382ad069e58dfced12dc6b8348aa8ffb07"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_041.pdf",
+      "bytes": 2883,
+      "sha256": "b53d698ff77e076ce647e6324403dae408a516541722242d1f32ed129adeec7f"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_042.pdf",
+      "bytes": 2969,
+      "sha256": "c678dac6765e471b530462e623f0c2f68e6198bc93cb126ff81fdec41951cb89"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_043.pdf",
+      "bytes": 3021,
+      "sha256": "770fae834309688cc208076145541c00da322f8f864493a4ee43dc39cc3372ef"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_044.pdf",
+      "bytes": 3056,
+      "sha256": "aa38d44cc29ab5f2f292149da68151a205464d3fec764cea2807adfcc7354786"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_045.pdf",
+      "bytes": 3016,
+      "sha256": "eece3d0c7701df385788b915f44f76bbd389e69145f02fa486b186c421da9a9b"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_046.pdf",
+      "bytes": 3034,
+      "sha256": "ed9642301d7d175fffef3fe881a4674c123a8b8e2b4d40c458be406c38409765"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_047.pdf",
+      "bytes": 2953,
+      "sha256": "f9c7f338d7f30aae72337990119cde5295cd3390142e9d213df30394dbcd07a3"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_048.pdf",
+      "bytes": 2919,
+      "sha256": "f250807614c3ab76116a35a04801ca0735c2b6457a1a06b044f5806848a20da5"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_049.pdf",
+      "bytes": 2931,
+      "sha256": "eb9a67ed1a616089b388d8cc03a5f545a43232c7a8a9ccfd6432f4c6629029b9"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_001.pdf",
+      "bytes": 2986,
+      "sha256": "9199200be44e61ccd9716d698181da46635c5921beddb4bb90aebedafeb84540"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_002.pdf",
+      "bytes": 2951,
+      "sha256": "ef77645e16657af881a1932c32216965e9d7f8a31e745e818dfc13f17bce8f44"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_003.pdf",
+      "bytes": 2961,
+      "sha256": "b204032783d2ffe409a8ba8609c756c4afb51e25bb25f64b113cce1135bf77ea"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_004.pdf",
+      "bytes": 2871,
+      "sha256": "486e8b254989dcc6d8a80df8edc01d24b6c864420b169af3538a42707b146a3b"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_005.pdf",
+      "bytes": 2844,
+      "sha256": "be6e67340d66d2c634f4ec711a0d22faa21bc5d9886559c8756b64508d60286d"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_006.pdf",
+      "bytes": 2836,
+      "sha256": "fb657ccc5ab90ac430ec09b2f7d13aff6c86a56721071457590bc9ca80f98693"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_007.pdf",
+      "bytes": 2867,
+      "sha256": "4942057cb21915add6324c4c22e40002707fea4c45967849ddf25e733f04008f"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_008.pdf",
+      "bytes": 2892,
+      "sha256": "8d733d8ceee8470307cdcec0bc2babf0ce66d4f869a6859e024fe71a334060ea"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_009.pdf",
+      "bytes": 2846,
+      "sha256": "d2501b608be443b3f24154cf6ea0c583b857f8226b1669ee4625af68e2b24726"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_010.pdf",
+      "bytes": 2844,
+      "sha256": "127a3c1df84def974001e34b8554dea2f71c95bde225e634bed1dd6b4403afff"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_011.pdf",
+      "bytes": 2808,
+      "sha256": "0bbedd2970d040e68cf0672f3860810a15de45be0136a67816d4ed1bd8fab164"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_012.pdf",
+      "bytes": 2739,
+      "sha256": "1ba47420857b845b12b370ad40f80e824ac2ce9f3f6a18338f8a8988a00d004f"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_013.pdf",
+      "bytes": 2688,
+      "sha256": "8eadb6d8c152d9bd60b3f1b7edcd81f2ee975e817cbea3f0d42749311a28d424"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_014.pdf",
+      "bytes": 2569,
+      "sha256": "5cd7d9c5615d768b8452245f2c969501f023946fae2b57f9740d85627f281ba9"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_015.pdf",
+      "bytes": 2427,
+      "sha256": "685047e4f23532b4b8c9320641b6e9e0348e834341269704d4b2faf4308383ff"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_016.pdf",
+      "bytes": 2452,
+      "sha256": "e4ec743d574e0d46abc95252307d3183e96ed22d0a36b0536a27833bdbdf3021"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_017.pdf",
+      "bytes": 2484,
+      "sha256": "87264b351592fb242d1a1ba496d4f6f6039f02a9c00524178909532401687932"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_018.pdf",
+      "bytes": 2506,
+      "sha256": "0ea97245d66d2282d8e6b1559079168ef6de9376882031c4e6439a9bf4eddf9a"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_019.pdf",
+      "bytes": 2538,
+      "sha256": "83277196df96e5de48b4c4536c842f946dddbd827062e907b2178ac7a88e663a"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_020.pdf",
+      "bytes": 2589,
+      "sha256": "7cfb864fef349183bb1f30b1d38f8d3da71857b93100684396483b519679fe63"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_021.pdf",
+      "bytes": 2667,
+      "sha256": "e7ed632fd83ce84c4d3b212e12ed8ee08afd6ef879ddb2b0bcc5da304f5e4a4c"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_022.pdf",
+      "bytes": 2699,
+      "sha256": "6abacaca9cf86c06d29ba53b6c021552ba8f9217c783a7c0dc552a8bafaf15ca"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_023.pdf",
+      "bytes": 2656,
+      "sha256": "43492bcea39eb7847012279d69c4835932de9ba25890d5162ad46bc981684a72"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_024.pdf",
+      "bytes": 2632,
+      "sha256": "9e062021ba7d004ed334c0265267b2b6404cfa89bf71793cdc70d5cccfb37028"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_025.pdf",
+      "bytes": 2571,
+      "sha256": "284606fb7e9fc5c9755c5515fd6c7d7e29abd239608fe6bcdc82b677c480bf99"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_026.pdf",
+      "bytes": 2577,
+      "sha256": "f3c2d7ed413fca0a8b50e72ff6f40399ff490dc6ab9e08b6a475c960ed889eed"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_027.pdf",
+      "bytes": 2524,
+      "sha256": "c23179a5deddb5d78523fbf7fa55e99b4240b15c9644cf78b97eb7d35af23b90"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_028.pdf",
+      "bytes": 2521,
+      "sha256": "da992b7bc0b7aaba6110918fd1a0655d3ec6ed55d0946e8694f9bc490269c048"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_029.pdf",
+      "bytes": 2539,
+      "sha256": "6e0465f7754516ce451a4eb64deb79c52e0c45b25583354147e92cddabab93cc"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_030.pdf",
+      "bytes": 2533,
+      "sha256": "d971fdfca4baafc6414ad311ef9c33ee317b792736a891c11754ebef720a2238"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_031.pdf",
+      "bytes": 2481,
+      "sha256": "095d52f1a5693d2f129daca4d4719f2f881e6a2a9b2355aa5c3bdcfa02c415dc"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_032.pdf",
+      "bytes": 2458,
+      "sha256": "8b979026a36a450138ee7a3d6ddda0e30bc7df108ad7b8d57274a080ac203580"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_033.pdf",
+      "bytes": 2553,
+      "sha256": "9127713f8065de83cace0e8d3410a8adb72a95c88def7477e8e4c66c94aed529"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_034.pdf",
+      "bytes": 2594,
+      "sha256": "e15c867bf73bdf6cbf7b5f689b46b4174fd4fcfcbd485008a8bf12422f96f47e"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_035.pdf",
+      "bytes": 2621,
+      "sha256": "422fb1ed84eb35d8aa037d8b04c2ab4d05adc8db4a34d733e4ea6841322a6fdb"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_036.pdf",
+      "bytes": 2707,
+      "sha256": "84ac01396e40f5e6b374605d3db3280d92ed7dc5e8923111981bbe1f464f55d7"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_037.pdf",
+      "bytes": 2814,
+      "sha256": "d3f64b941dd87dbbc0b260a77ce2b284dddc1e7a4348b2543fa101de808f330c"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_038.pdf",
+      "bytes": 2946,
+      "sha256": "f8adad3fb89eeadf5a372fe4304d9119cd5a06904a452c6b418dd5e6ec8cbd3f"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_039.pdf",
+      "bytes": 3011,
+      "sha256": "e568072464207e1ff9c30d60e34bfbf30002b362c6ac19718718fce94ba667c0"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_040.pdf",
+      "bytes": 3041,
+      "sha256": "7d12cad809544868855dfe36c2cb26a40b57aa9a1f34b395034245a2c9d6b765"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_041.pdf",
+      "bytes": 3137,
+      "sha256": "31ce421325205a33dc64e160c792a6c492e1db1232c9e62d6cc079048c75b586"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_042.pdf",
+      "bytes": 3144,
+      "sha256": "145d61e8f961cfbe5aba67a33039d1fcadf99e96f5aac08add5759cde5bd8ad2"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_043.pdf",
+      "bytes": 3136,
+      "sha256": "c72b166bb097e1fa200911b80712ac5af33eeb227656adb2d852ea379cdd7e62"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_044.pdf",
+      "bytes": 3129,
+      "sha256": "3615adaf0f39185f76d3a9591960a306d27ae30dc02e918b438ec64d3261ed3c"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_045.pdf",
+      "bytes": 3171,
+      "sha256": "b29bd691ff84700c2e427130341e111a8ef20680920c57eb643f4731a54bdbd1"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_046.pdf",
+      "bytes": 3139,
+      "sha256": "c5bb51fe989358d32b38898e7e31e3f14fb758c8933533333606921b9659da8f"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_047.pdf",
+      "bytes": 3123,
+      "sha256": "6034a5200e4bb425d07248f81664963b07ee492f18b6541804d64fd8eb4a518e"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_048.pdf",
+      "bytes": 3037,
+      "sha256": "69865ef1ea68dea51fdf9f1d64abbf685177fd4d799d44670e41cdf25dd34fb4"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_049.pdf",
+      "bytes": 3079,
+      "sha256": "383a9820cbec078019d34b417c469393e9d4a9d03d49326479223b7d0c620db0"
     }
   ]
 }

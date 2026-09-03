@@ -55,8 +55,27 @@ interface WorkItemSummary {
 
 interface WorkItemFileView {
   file: ManagedFile;
-  matchCount: number;
-  highestSimilarity: number | null;
+  withinBatch: SimilarityMetrics;
+  referenceLibrary: SimilarityMetrics;
+}
+
+interface HighestSimilaritySource {
+  name: string;
+  container: string;
+  similarity: number;
+}
+
+interface SimilarityMetrics {
+  similarity: number;
+  matchedUnits: number;
+  totalUnits: number;
+  sourceCount: number;
+  highestSource: HighestSimilaritySource | null;
+}
+
+interface WorkItemSimilarityOverview {
+  withinBatch: SimilarityMetrics;
+  referenceLibrary: SimilarityMetrics;
 }
 
 interface BatchImportSummary {
@@ -115,6 +134,7 @@ interface FileMatchSummary {
   sourceWorkItemName: string | null;
   algorithmId: string;
   similarity: number;
+  matchedUnits: number;
   riskCount: number;
 }
 
@@ -160,6 +180,7 @@ let selectedBatchId: number | null = null;
 let workItems: WorkItemSummary[] = [];
 let selectedWorkItem: WorkItemSummary | null = null;
 let workItemFiles: WorkItemFileView[] = [];
+let workItemOverview: WorkItemSimilarityOverview | null = null;
 let selectedBatchFile: ManagedFile | null = null;
 let matches: FileMatchSummary[] = [];
 let selectedMatchId: number | null = null;
@@ -193,7 +214,13 @@ window.addEventListener("DOMContentLoaded", () => {
     if (payload.workItemId !== selectedWorkItem?.id) return;
     const existing = workItemFiles.find((item) => item.file.id === payload.file.id);
     if (existing) existing.file = payload.file;
-    else workItemFiles.unshift({ file: payload.file, matchCount: 0, highestSimilarity: null });
+    else {
+      workItemFiles.unshift({
+        file: payload.file,
+        withinBatch: emptySimilarityMetrics(),
+        referenceLibrary: emptySimilarityMetrics(),
+      });
+    }
     renderWorkItemFiles();
   });
   void listen<DetectionProgress>("detection-progress", ({ payload }) => {
@@ -452,20 +479,50 @@ function setDetectionBusy(busy: boolean): void {
 
 async function openWorkItem(workItemId: number): Promise<void> {
   try {
-    const [item, files] = await Promise.all([
+    const [item, files, overview] = await Promise.all([
       invoke<WorkItemSummary>("get_work_item", { workItemId }),
       invoke<WorkItemFileView[]>("list_work_item_files", { workItemId }),
+      invoke<WorkItemSimilarityOverview>("get_work_item_similarity_overview", { workItemId }),
     ]);
     selectedWorkItem = item;
     selectedBatchId = item.batchId;
     workItemFiles = files;
+    workItemOverview = overview;
     byId("work-item-name").textContent = item.name;
     byId("work-item-meta").textContent = `${item.readyFileCount}/${item.fileCount} 个文件解析成功`;
+    renderWorkItemOverview();
     renderWorkItemFiles();
     showBatchView("workItem");
   } catch (error) {
     showToast(errorMessage(error), true);
   }
+}
+
+function renderWorkItemOverview(): void {
+  const batch = selectedBatch();
+  const ready = batch?.detectionStatus === "ready" && workItemOverview !== null;
+  const algorithm = appInfo.algorithms.find((item) => item.id === batch?.algorithmId);
+  byId("overview-algorithm").textContent = ready ? (algorithm?.displayName ?? "") : "";
+  byId("overview-state").classList.toggle("is-hidden", ready);
+  byId("overview-metrics").classList.toggle("is-muted", !ready);
+  renderScopeMetrics("batch", ready ? workItemOverview!.withinBatch : null);
+  renderScopeMetrics("reference", ready ? workItemOverview!.referenceLibrary : null);
+}
+
+function renderScopeMetrics(prefix: "batch" | "reference", metrics: SimilarityMetrics | null): void {
+  byId(`${prefix}-overall-similarity`).textContent = metrics ? formatPercent(metrics.similarity) : "—";
+  byId(`${prefix}-matched-units`).textContent = metrics
+    ? `${formatInteger(metrics.matchedUnits)} / ${formatInteger(metrics.totalUnits)}`
+    : "—";
+  byId(`${prefix}-source-count`).textContent = metrics
+    ? `${formatInteger(metrics.sourceCount)} 个`
+    : "—";
+  byId(`${prefix}-highest-similarity`).textContent = metrics?.highestSource
+    ? formatPercent(metrics.highestSource.similarity)
+    : "—";
+  byId(`${prefix}-highest-source`).textContent = metrics?.highestSource
+    ? `${metrics.highestSource.name} · ${metrics.highestSource.container}`
+    : "";
 }
 
 function renderWorkItemFiles(): void {
@@ -496,11 +553,14 @@ function renderWorkItemFiles(): void {
     result.className = "file-result-meta";
     if (view.file.parseStatus === "ready") {
       const detectionReady = selectedBatch()?.detectionStatus === "ready";
-      result.textContent = !detectionReady
-        ? "等待查重"
-        : view.matchCount
-          ? `${view.matchCount} 个来源 · 最高 ${formatPercent(view.highestSimilarity ?? 0)}`
-          : "无匹配来源";
+      if (!detectionReady) {
+        result.textContent = "等待查重";
+      } else {
+        result.append(
+          fileScopeResult("同批次", view.withinBatch),
+          fileScopeResult("参考库", view.referenceLibrary),
+        );
+      }
     } else {
       const state = document.createElement("span");
       state.className = `parse-status ${view.file.parseStatus}`;
@@ -518,6 +578,19 @@ function renderWorkItemFiles(): void {
   }
 }
 
+function fileScopeResult(label: string, metrics: SimilarityMetrics): HTMLElement {
+  const result = document.createElement("span");
+  result.className = "file-scope-result";
+  const name = document.createElement("small");
+  name.textContent = label;
+  const similarity = document.createElement("strong");
+  similarity.textContent = formatPercent(metrics.similarity);
+  const sources = document.createElement("small");
+  sources.textContent = `${metrics.sourceCount} 个来源`;
+  result.append(name, similarity, sources);
+  return result;
+}
+
 async function retryBatchFile(view: WorkItemFileView): Promise<void> {
   if (!selectedWorkItem || detectionBusy) return;
   const workItemId = selectedWorkItem.id;
@@ -527,7 +600,8 @@ async function retryBatchFile(view: WorkItemFileView): Promise<void> {
   renderWorkItemFiles();
   try {
     await invoke<ManagedFile>("retry_batch_parse", { workItemId, fileId: view.file.id });
-    await Promise.all([openWorkItem(workItemId), loadBatches(batchId)]);
+    await loadBatches(batchId);
+    await openWorkItem(workItemId);
   } catch (error) {
     showToast(errorMessage(error), true);
     await openWorkItem(workItemId);
@@ -559,7 +633,23 @@ function renderMatches(): void {
   list.replaceChildren();
   byId("match-count").textContent = `${matches.length} 个`;
   byId("match-list-empty").classList.toggle("is-hidden", matches.length !== 0);
-  for (const match of matches) {
+  list.classList.toggle("is-hidden", matches.length === 0);
+  appendMatchGroup(list, "同批次来源", matches.filter((match) => match.sourceKind === "batch"));
+  appendMatchGroup(list, "参考库来源", matches.filter((match) => match.sourceKind === "reference"));
+}
+
+function appendMatchGroup(container: HTMLElement, title: string, group: FileMatchSummary[]): void {
+  const section = document.createElement("section");
+  section.className = "match-group";
+  const heading = document.createElement("div");
+  heading.className = "match-group-heading";
+  const label = document.createElement("strong");
+  label.textContent = title;
+  const count = document.createElement("span");
+  count.textContent = String(group.length);
+  heading.append(label, count);
+  section.append(heading);
+  for (const match of group) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "match-item";
@@ -571,15 +661,17 @@ function renderMatches(): void {
     score.textContent = formatPercent(match.similarity);
     heading.append(name, score);
     const source = document.createElement("small");
-    source.textContent = match.sourceKind === "reference"
-      ? `参考库 · ${match.sourceContainer}`
-      : `批次内 · ${match.sourceWorkItemName ?? match.sourceContainer}`;
+    const sourceContainer = match.sourceKind === "reference"
+      ? match.sourceContainer
+      : (match.sourceWorkItemName ?? match.sourceContainer);
+    source.textContent = `${sourceContainer} · ${formatInteger(match.matchedUnits)} Token`;
     const path = document.createElement("small");
     path.textContent = match.sourcePath;
     button.append(heading, source, path);
     button.addEventListener("click", () => void selectMatch(match));
-    list.append(button);
+    section.append(button);
   }
+  container.append(section);
 }
 
 async function selectMatch(match: FileMatchSummary): Promise<void> {
@@ -608,7 +700,7 @@ function renderComparison(detail: MatchDetail, match: FileMatchSummary): void {
   byId("query-text-title").textContent = detail.queryFile.name;
   byId("source-text-title").textContent = detail.sourceFile.name;
   currentRiskRegions = detail.riskRegions;
-  byId("risk-summary").textContent = `${currentRiskRegions.length} 处高风险区域`;
+  byId("risk-summary").textContent = `${currentRiskRegions.length} 个匹配片段`;
   renderRiskNavigation();
   queryRiskMarks = renderHighlightedText(
     byId("query-text"),
@@ -643,7 +735,7 @@ function renderRiskNavigation(): void {
   currentRiskRegions.forEach((region, index) => {
     const option = document.createElement("option");
     option.value = String(index);
-    option.textContent = `第 ${index + 1} 处：当前${formatRiskLocation(region.queryLocation)}；来源${formatRiskLocation(region.sourceLocation)}`;
+    option.textContent = `片段 ${index + 1}：当前${formatRiskLocation(region.queryLocation)}；来源${formatRiskLocation(region.sourceLocation)}`;
     select.append(option);
   });
   const hasRegions = currentRiskRegions.length > 0;
@@ -722,7 +814,7 @@ function renderHighlightedText(
     if (end > start) {
       const mark = document.createElement("mark");
       mark.textContent = text.slice(start, end);
-      mark.title = range.indexes.map((index) => `高风险区域 ${index + 1}`).join("、");
+      mark.title = range.indexes.map((index) => `匹配片段 ${index + 1}`).join("、");
       container.append(mark);
       range.indexes.forEach((index) => {
         if (!marks.has(index)) marks.set(index, mark);
@@ -1112,6 +1204,20 @@ function formatBytes(bytes: number): string {
 
 function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
+}
+
+function formatInteger(value: number): string {
+  return new Intl.NumberFormat("zh-CN").format(value);
+}
+
+function emptySimilarityMetrics(): SimilarityMetrics {
+  return {
+    similarity: 0,
+    matchedUnits: 0,
+    totalUnits: 0,
+    sourceCount: 0,
+    highestSource: null,
+  };
 }
 
 function errorMessage(error: unknown): string {

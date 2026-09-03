@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "notes": [
     "Scores vary by algorithm; relations and ordering are the assertions.",
-    "A stored match requires similarity >= 0.15 and at least 16 matched bytes."
+    "A stored match requires an IDF-qualified continuous Token chain and at least 0.10 weighted query coverage; there is no raw similarity reporting threshold."
   ],
   "cases": [
     {
@@ -39,13 +39,13 @@
       "query": "batch/student_03_peer_copy/report.pdf",
       "scope": "reference",
       "source": null,
-      "expectation": "cross-domain calibration probe; all algorithms should reject reference-library matches"
+      "expectation": "cross-domain calibration probe; no reference-library match at or above 0.15 is expected"
     },
     {
       "query": "batch/student_04_clean_code/euclidean_distance.py",
       "scope": "reference",
       "source": null,
-      "expectation": "code calibration probe; all algorithms should reject reference-library matches"
+      "expectation": "code calibration probe; no reference-library match at or above 0.15 is expected"
     }
   ]
 }

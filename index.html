@@ -73,10 +73,68 @@
                 <p id="work-item-meta"></p>
               </div>
             </div>
-            <div class="overview-placeholder">
-              <span>总体指标</span>
-              <p>该区域保留给后续的作业项聚合指标定义。</p>
-            </div>
+            <section class="work-item-overview" aria-labelledby="overview-title">
+              <div class="overview-heading">
+                <div>
+                  <div class="overview-title-row">
+                    <h3 id="overview-title">总体指标</h3>
+                    <span id="overview-algorithm" class="metric-algorithm"></span>
+                  </div>
+                  <p>总体相似度按 IDF 降噪后的匹配 Token 并集计算；同批次与参考库分开，同一内容只计一次。</p>
+                </div>
+                <p id="overview-state" class="overview-state">完成查重后生成指标</p>
+              </div>
+              <div id="overview-metrics" class="similarity-scope-grid is-muted">
+                <article class="similarity-scope-card">
+                  <h4>同批次来源</h4>
+                  <div class="scope-primary-metric">
+                    <strong id="batch-overall-similarity">—</strong>
+                    <span>总体相似度</span>
+                  </div>
+                  <dl class="scope-metric-list">
+                    <div>
+                      <dt>匹配 Token / 总 Token</dt>
+                      <dd id="batch-matched-units">—</dd>
+                    </div>
+                    <div>
+                      <dt>相似作业项</dt>
+                      <dd id="batch-source-count">—</dd>
+                    </div>
+                    <div class="scope-highest-source">
+                      <dt>单一来源最高相似度</dt>
+                      <dd>
+                        <strong id="batch-highest-similarity">—</strong>
+                        <small id="batch-highest-source"></small>
+                      </dd>
+                    </div>
+                  </dl>
+                </article>
+                <article class="similarity-scope-card">
+                  <h4>参考库来源</h4>
+                  <div class="scope-primary-metric">
+                    <strong id="reference-overall-similarity">—</strong>
+                    <span>总体相似度</span>
+                  </div>
+                  <dl class="scope-metric-list">
+                    <div>
+                      <dt>匹配 Token / 总 Token</dt>
+                      <dd id="reference-matched-units">—</dd>
+                    </div>
+                    <div>
+                      <dt>相似参考文件</dt>
+                      <dd id="reference-source-count">—</dd>
+                    </div>
+                    <div class="scope-highest-source">
+                      <dt>单一来源最高相似度</dt>
+                      <dd>
+                        <strong id="reference-highest-similarity">—</strong>
+                        <small id="reference-highest-source"></small>
+                      </dd>
+                    </div>
+                  </dl>
+                </article>
+              </div>
+            </section>
             <div class="subsection-heading">
               <h3>文件结果</h3>
             </div>
@@ -103,7 +161,7 @@
               <section class="comparison-view">
                 <div id="comparison-empty" class="detail-placeholder compact">
                   <h3>选择一个匹配来源</h3>
-                  <p>这里仅标注双方原文中的高风险位置，不生成逐行差异视图。</p>
+                  <p>这里标注双方原文中的匹配位置，不生成逐行差异视图。</p>
                 </div>
                 <div id="comparison-content" class="is-hidden">
                   <div class="comparison-heading">
@@ -114,7 +172,7 @@
                     <small id="risk-summary"></small>
                   </div>
                   <div id="risk-navigation" class="risk-navigation">
-                    <label for="risk-region-select">高风险区域</label>
+                    <label for="risk-region-select">匹配片段</label>
                     <select id="risk-region-select"></select>
                     <button id="previous-risk" class="secondary-action" type="button">上一处</button>
                     <button id="next-risk" class="secondary-action" type="button">下一处</button>

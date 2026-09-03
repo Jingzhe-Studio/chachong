@@ -12,14 +12,19 @@ Generated test fixtures are not real student submissions.
 arXiv:1604.05177v1. The selection and PDF metadata are changes made for this fixture.
 The exact-copy and independent-control PDFs are unmodified copies.
 
+The document reference library contains the two complete medical-physics papers plus
+49 deterministic text windows from each paper. Each generated excerpt names its
+source, word range, and CC BY 4.0 license. The 98 derived PDFs are scale fixtures, not
+independent papers. Their full mapping is in `metadata/arxiv_excerpt_catalog.json`.
+
 ## GitHub code
 
 - Repository: [TheAlgorithms/Python](https://github.com/TheAlgorithms/Python)
 - Snapshot commit: `dc7d5ebfa4f29feac8d7d1cc485a25a90960b3aa`
 - License: MIT; the snapshot license text is stored as
   `metadata/TheAlgorithms-Python-LICENSE.md`.
-- Imported paths: `sorts/merge_sort.py`, `searches/binary_search.py`, and
-  `maths/euclidean_distance.py`.
+- The reference library contains 100 distinct Python files selected deterministically
+  from the snapshot. Their paths are in `metadata/reference_code_paths.json`.
 
 The student_02 binary-search fixture only renames identifiers and adds an attribution
 notice. The merge-sort fixture is an exact copy. The Euclidean-distance file is a

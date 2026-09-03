@@ -1,10 +1,10 @@
 use crate::{
     algorithms::features::{
-        TOKEN_KIND, build_chunk_index, compare_feature_sequences, decode, prepare, token_features,
+        TOKEN_KIND, build_chunk_index, compare_feature_sequences, prepare, token_features,
     },
     detection::{
         AlgorithmDescriptor, Comparator, ComparisonEvidence, DetectionAlgorithm, DetectionError,
-        PreparedFile, Preprocessor, RetrievalIndex, Retriever,
+        FeatureWeightProvider, PreparedFile, Preprocessor, RetrievalIndex, Retriever,
     },
     domain::FileCategory,
     parser::ParsedFile,
@@ -23,8 +23,8 @@ impl DetectionAlgorithm for TokenCosineAlgorithm {
     fn descriptor(&self) -> AlgorithmDescriptor {
         AlgorithmDescriptor {
             id: "token-cosine",
-            display_name: "短词组覆盖率",
-            description: "按段落和代码块召回候选，再计算当前文件中连续短词组的覆盖比例。",
+            display_name: "IDF 短词组覆盖率",
+            description: "按来源语料的词组稀有度过滤公共文本，再计算连续短词组的 Token 覆盖率。",
             supported_categories: &SUPPORTED_CATEGORIES,
         }
     }
@@ -71,15 +71,9 @@ impl Comparator for TokenCoverageComparator {
         &self,
         query: &PreparedFile,
         source: &PreparedFile,
+        weights: &dyn FeatureWeightProvider,
     ) -> Result<ComparisonEvidence, DetectionError> {
-        let query = decode(query, TOKEN_KIND)?;
-        let source = decode(source, TOKEN_KIND)?;
-        let (similarity, risk_regions) =
-            compare_feature_sequences(&query.features, &source.features, 3);
-        Ok(ComparisonEvidence {
-            similarity,
-            risk_regions,
-        })
+        compare_feature_sequences(query, source, TOKEN_KIND, 3, weights)
     }
 }
 

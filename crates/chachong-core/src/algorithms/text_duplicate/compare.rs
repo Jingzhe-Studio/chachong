@@ -1,6 +1,8 @@
 use crate::{
-    algorithms::features::{SHINGLE_KIND, compare_feature_sequences, decode},
-    detection::{Comparator, ComparisonEvidence, DetectionError, PreparedFile},
+    algorithms::features::{SHINGLE_KIND, compare_feature_sequences},
+    detection::{
+        Comparator, ComparisonEvidence, DetectionError, FeatureWeightProvider, PreparedFile,
+    },
 };
 
 #[derive(Default)]
@@ -11,14 +13,8 @@ impl Comparator for TextDuplicateComparator {
         &self,
         query: &PreparedFile,
         source: &PreparedFile,
+        weights: &dyn FeatureWeightProvider,
     ) -> Result<ComparisonEvidence, DetectionError> {
-        let query = decode(query, SHINGLE_KIND)?;
-        let source = decode(source, SHINGLE_KIND)?;
-        let (similarity, risk_regions) =
-            compare_feature_sequences(&query.features, &source.features, 2);
-        Ok(ComparisonEvidence {
-            similarity,
-            risk_regions,
-        })
+        compare_feature_sequences(query, source, SHINGLE_KIND, 2, weights)
     }
 }

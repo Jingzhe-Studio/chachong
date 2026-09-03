@@ -11,6 +11,15 @@ pub struct TextRange {
     pub end: u64,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AnalysisUnitRange {
+    /// Inclusive index in the query file's normalized analysis-unit sequence.
+    pub start: u64,
+    /// Exclusive index in the query file's normalized analysis-unit sequence.
+    pub end: u64,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RiskRegion {
@@ -33,5 +42,8 @@ pub struct FileComparison {
     pub scope: ComparisonScope,
     pub algorithm_id: String,
     pub similarity: f32,
+    pub query_unit_count: u64,
+    pub matched_unit_count: u64,
+    pub matched_unit_ranges: Vec<AnalysisUnitRange>,
     pub risk_regions: Vec<RiskRegion>,
 }

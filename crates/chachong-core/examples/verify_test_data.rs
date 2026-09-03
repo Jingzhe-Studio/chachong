@@ -37,8 +37,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
             |_| {},
         )
         .await?;
-    assert_eq!(document_import.ready, 2, "both reference PDFs must parse");
-    assert_eq!(code_import.ready, 2, "both reference code files must parse");
+    assert_eq!(document_import.ready, 100, "all reference PDFs must parse");
+    assert_eq!(
+        code_import.ready, 100,
+        "all reference code files must parse"
+    );
 
     let batch_import = core
         .batches()
@@ -64,7 +67,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             )
             .await?;
         assert!(
-            run.compared_pairs < 40,
+            run.compared_pairs < 800,
             "{}: block retrieval should prune unrelated file pairs",
             descriptor.id
         );
@@ -155,10 +158,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
             &query_ids,
             "student_04_clean_code/euclidean_distance.py",
         )?;
-        assert_no_reference_match(descriptor.id, "document control", &document_control);
-        assert_no_reference_match(descriptor.id, "code control", &code_control);
         print_optional_control("document control", &document_control);
         print_optional_control("code control", &code_control);
+        assert_no_reference_match(descriptor.id, "document control", &document_control);
+        assert_no_reference_match(descriptor.id, "code control", &code_control);
     }
 
     println!("fixture verification passed: {}", dataset.display());

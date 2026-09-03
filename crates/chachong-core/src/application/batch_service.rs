@@ -3,10 +3,10 @@ use std::{collections::HashMap, path::Path, path::PathBuf, sync::Arc};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    detection::{DetectionAlgorithm, DetectionPipeline},
+    detection::{ComparisonEvidence, DetectionAlgorithm, DetectionPipeline},
     domain::{
-        BatchId, BatchSummary, ComparisonScope, DetectionStatus, FileCategory, FileId, ManagedFile,
-        ParseStatus, RiskRegion, TextRange, WorkItemId, WorkItemSummary,
+        AnalysisUnitRange, BatchId, BatchSummary, ComparisonScope, DetectionStatus, FileCategory,
+        FileId, ManagedFile, ParseStatus, TextRange, WorkItemId, WorkItemSummary,
     },
     importing::discover_batch,
     parser::{CodeTextParser, ContentParser, LiteParseDocumentParser, ParsedFile, SourceLocation},
@@ -19,8 +19,7 @@ use crate::{
 use super::{ApplicationError, SkippedReferenceImport};
 
 const RETRIEVAL_LIMIT: usize = 64;
-const MIN_SIMILARITY: f32 = 0.15;
-const MIN_MATCHED_BYTES: u64 = 16;
+const MIN_WEIGHTED_SOURCE_EVIDENCE: f32 = 0.10;
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -64,8 +63,33 @@ pub struct DetectionProgress {
 #[serde(rename_all = "camelCase")]
 pub struct WorkItemFileView {
     pub file: ManagedFile,
-    pub match_count: u64,
-    pub highest_similarity: Option<f32>,
+    pub within_batch: SimilarityMetrics,
+    pub reference_library: SimilarityMetrics,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SimilarityMetrics {
+    pub similarity: f32,
+    pub matched_units: u64,
+    pub total_units: u64,
+    pub source_count: u64,
+    pub highest_source: Option<HighestSimilaritySource>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HighestSimilaritySource {
+    pub name: String,
+    pub container: String,
+    pub similarity: f32,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WorkItemSimilarityOverview {
+    pub within_batch: SimilarityMetrics,
+    pub reference_library: SimilarityMetrics,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -80,6 +104,7 @@ pub struct FileMatchSummary {
     pub source_work_item_name: Option<String>,
     pub algorithm_id: String,
     pub similarity: f32,
+    pub matched_units: u64,
     pub risk_count: u64,
 }
 
@@ -177,28 +202,85 @@ impl BatchService {
         work_item_id: WorkItemId,
     ) -> Result<Vec<WorkItemFileView>, ApplicationError> {
         let item = self.get_work_item(work_item_id)?;
-        let algorithm_id = self
+        let files = self.store.list_work_item_files(work_item_id)?;
+        let Some(algorithm_id) = self
             .store
             .find_batch(item.batch_id)?
-            .and_then(|batch| batch.algorithm_id);
-        self.store
-            .list_work_item_files(work_item_id)?
+            .and_then(|batch| batch.algorithm_id)
+        else {
+            return Ok(files
+                .into_iter()
+                .map(|file| WorkItemFileView {
+                    file,
+                    within_batch: SimilarityMetrics::default(),
+                    reference_library: SimilarityMetrics::default(),
+                })
+                .collect());
+        };
+        let totals: HashMap<_, _> = self
+            .store
+            .list_work_item_file_analyses(item.batch_id, work_item_id, &algorithm_id)?
+            .into_iter()
+            .map(|analysis| (analysis.file_id, analysis.total_units))
+            .collect();
+        let matches =
+            self.store
+                .list_work_item_matches(item.batch_id, work_item_id, &algorithm_id)?;
+        Ok(files
             .into_iter()
             .map(|file| {
-                let matches = match &algorithm_id {
-                    Some(algorithm_id) => {
-                        self.store
-                            .list_file_matches(item.batch_id, file.id, algorithm_id)?
-                    }
-                    None => Vec::new(),
-                };
-                Ok(WorkItemFileView {
-                    match_count: matches.len() as u64,
-                    highest_similarity: matches.first().map(|item| item.similarity),
+                let file_totals =
+                    HashMap::from([(file.id, totals.get(&file.id).copied().unwrap_or(0))]);
+                WorkItemFileView {
+                    within_batch: aggregate_similarity_metrics(
+                        &file_totals,
+                        matches.iter().filter(|item| item.query_file_id == file.id),
+                        MetricsScope::WithinBatch,
+                    ),
+                    reference_library: aggregate_similarity_metrics(
+                        &file_totals,
+                        matches.iter().filter(|item| item.query_file_id == file.id),
+                        MetricsScope::ReferenceLibrary,
+                    ),
                     file,
-                })
+                }
             })
-            .collect()
+            .collect())
+    }
+
+    pub fn get_work_item_similarity_overview(
+        &self,
+        work_item_id: WorkItemId,
+    ) -> Result<WorkItemSimilarityOverview, ApplicationError> {
+        let item = self.get_work_item(work_item_id)?;
+        let Some(algorithm_id) = self
+            .store
+            .find_batch(item.batch_id)?
+            .and_then(|batch| batch.algorithm_id)
+        else {
+            return Ok(WorkItemSimilarityOverview::default());
+        };
+        let totals: HashMap<_, _> = self
+            .store
+            .list_work_item_file_analyses(item.batch_id, work_item_id, &algorithm_id)?
+            .into_iter()
+            .map(|analysis| (analysis.file_id, analysis.total_units))
+            .collect();
+        let matches =
+            self.store
+                .list_work_item_matches(item.batch_id, work_item_id, &algorithm_id)?;
+        Ok(WorkItemSimilarityOverview {
+            within_batch: aggregate_similarity_metrics(
+                &totals,
+                matches.iter(),
+                MetricsScope::WithinBatch,
+            ),
+            reference_library: aggregate_similarity_metrics(
+                &totals,
+                matches.iter(),
+                MetricsScope::ReferenceLibrary,
+            ),
+        })
     }
 
     pub async fn import_batch<F>(
@@ -488,6 +570,14 @@ impl BatchService {
                     pipeline.preprocess(&batch_parsed[&record.file.id])?,
                 );
             }
+            for prepared in batch_prepared.values() {
+                self.store.upsert_file_analysis(
+                    batch_id,
+                    prepared.file_id,
+                    &summary.algorithm_id,
+                    prepared.analysis_unit_count,
+                )?;
+            }
             let mut reference_prepared = HashMap::new();
             for record in &category_references {
                 reference_prepared.insert(
@@ -499,6 +589,15 @@ impl BatchService {
             let reference_corpus: Vec<_> = reference_prepared.values().cloned().collect();
             let batch_index = pipeline.build_index(&batch_corpus)?;
             let reference_index = pipeline.build_index(&reference_corpus)?;
+            // IDF needs the full available corpus to recognize boilerplate that
+            // crosses the batch/reference boundary. Retrieval and reported
+            // results remain strictly separated by source scope.
+            let evidence_corpus: Vec<_> = batch_corpus
+                .iter()
+                .chain(&reference_corpus)
+                .cloned()
+                .collect();
+            let evidence_index = pipeline.build_index(&evidence_corpus)?;
             let batch_metadata: HashMap<_, _> = category_batch
                 .iter()
                 .map(|record| (record.file.id, *record))
@@ -519,8 +618,9 @@ impl BatchService {
                     }
                     let source = &batch_prepared[&candidate.file_id];
                     summary.compared_pairs += 1;
-                    let evidence = pipeline.compare(query, source)?;
-                    if should_store(&evidence.risk_regions, evidence.similarity) {
+                    let evidence =
+                        pipeline.compare_with_weights(query, source, evidence_index.as_ref())?;
+                    if should_store(&evidence) {
                         self.store.insert_comparison(&NewComparison {
                             batch_id,
                             query_file_id: query_record.file.id,
@@ -528,6 +628,9 @@ impl BatchService {
                             scope: ComparisonScope::WithinBatch { batch_id },
                             algorithm_id: summary.algorithm_id.clone(),
                             similarity: evidence.similarity.clamp(0.0, 1.0),
+                            query_unit_count: evidence.query_unit_count,
+                            matched_unit_count: evidence.matched_unit_count,
+                            matched_unit_ranges: evidence.matched_unit_ranges,
                             risk_regions: evidence.risk_regions,
                         })?;
                         summary.matches += 1;
@@ -539,8 +642,9 @@ impl BatchService {
                     };
                     let source = &reference_prepared[&candidate.file_id];
                     summary.compared_pairs += 1;
-                    let evidence = pipeline.compare(query, source)?;
-                    if should_store(&evidence.risk_regions, evidence.similarity) {
+                    let evidence =
+                        pipeline.compare_with_weights(query, source, evidence_index.as_ref())?;
+                    if should_store(&evidence) {
                         self.store.insert_comparison(&NewComparison {
                             batch_id,
                             query_file_id: query_record.file.id,
@@ -550,6 +654,9 @@ impl BatchService {
                             },
                             algorithm_id: summary.algorithm_id.clone(),
                             similarity: evidence.similarity.clamp(0.0, 1.0),
+                            query_unit_count: evidence.query_unit_count,
+                            matched_unit_count: evidence.matched_unit_count,
+                            matched_unit_ranges: evidence.matched_unit_ranges,
                             risk_regions: evidence.risk_regions,
                         })?;
                         summary.matches += 1;
@@ -664,7 +771,7 @@ fn locate_range(file: &ParsedFile, range: TextRange) -> Option<RiskLocation> {
                     }
                 });
             let start_page = pages.next()?;
-            let end_page = pages.last().unwrap_or(start_page);
+            let end_page = pages.next_back().unwrap_or(start_page);
             Some(RiskLocation::Document {
                 start_page,
                 end_page,
@@ -683,7 +790,7 @@ fn locate_range(file: &ParsedFile, range: TextRange) -> Option<RiskLocation> {
                     }
                 });
             let start_line = lines.next()?;
-            let end_line = lines.last().unwrap_or(start_line);
+            let end_line = lines.next_back().unwrap_or(start_line);
             Some(RiskLocation::Code {
                 start_line,
                 end_line,
@@ -692,17 +799,156 @@ fn locate_range(file: &ParsedFile, range: TextRange) -> Option<RiskLocation> {
     }
 }
 
-fn should_store(risk_regions: &[RiskRegion], similarity: f32) -> bool {
-    let matched_bytes: u64 = risk_regions
-        .iter()
-        .map(|region| {
-            region
-                .query_range
-                .end
-                .saturating_sub(region.query_range.start)
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum MetricsScope {
+    WithinBatch,
+    ReferenceLibrary,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+enum AggregateSourceId {
+    WorkItem(WorkItemId),
+    BatchFile(FileId),
+    ReferenceFile(FileId),
+}
+
+struct SourceAccumulator {
+    name: String,
+    container: String,
+    ranges_by_file: HashMap<FileId, Vec<AnalysisUnitRange>>,
+}
+
+fn aggregate_similarity_metrics<'a>(
+    totals: &HashMap<FileId, u64>,
+    matches: impl Iterator<Item = &'a StoredMatchSummary>,
+    scope: MetricsScope,
+) -> SimilarityMetrics {
+    let total_units = totals.values().sum();
+    let mut ranges_by_file: HashMap<FileId, Vec<AnalysisUnitRange>> = HashMap::new();
+    let mut sources: HashMap<AggregateSourceId, SourceAccumulator> = HashMap::new();
+
+    for item in matches.filter(|item| {
+        matches!(
+            (scope, item.scope),
+            (
+                MetricsScope::WithinBatch,
+                ComparisonScope::WithinBatch { .. }
+            ) | (
+                MetricsScope::ReferenceLibrary,
+                ComparisonScope::ReferenceLibrary { .. }
+            )
+        )
+    }) {
+        ranges_by_file
+            .entry(item.query_file_id)
+            .or_default()
+            .extend(item.matched_unit_ranges.iter().copied());
+        let source_id = match scope {
+            MetricsScope::WithinBatch => item
+                .source_work_item_id
+                .map(AggregateSourceId::WorkItem)
+                .unwrap_or(AggregateSourceId::BatchFile(item.source_file_id)),
+            MetricsScope::ReferenceLibrary => AggregateSourceId::ReferenceFile(item.source_file_id),
+        };
+        let source = sources
+            .entry(source_id)
+            .or_insert_with(|| SourceAccumulator {
+                name: match scope {
+                    MetricsScope::WithinBatch => item
+                        .source_work_item_name
+                        .clone()
+                        .unwrap_or_else(|| item.source_name.clone()),
+                    MetricsScope::ReferenceLibrary => item.source_name.clone(),
+                },
+                container: item.scope_name.clone(),
+                ranges_by_file: HashMap::new(),
+            });
+        source
+            .ranges_by_file
+            .entry(item.query_file_id)
+            .or_default()
+            .extend(item.matched_unit_ranges.iter().copied());
+    }
+
+    let matched_units = count_merged_units(totals, &ranges_by_file);
+    let highest_source = sources
+        .values()
+        .map(|source| {
+            let matched = count_merged_units(totals, &source.ranges_by_file);
+            HighestSimilaritySource {
+                name: source.name.clone(),
+                container: source.container.clone(),
+                similarity: ratio(matched, total_units),
+            }
         })
-        .sum();
-    similarity.is_finite() && similarity >= MIN_SIMILARITY && matched_bytes >= MIN_MATCHED_BYTES
+        .max_by(|left, right| {
+            left.similarity
+                .total_cmp(&right.similarity)
+                .then_with(|| right.name.cmp(&left.name))
+        });
+
+    SimilarityMetrics {
+        similarity: ratio(matched_units, total_units),
+        matched_units,
+        total_units,
+        source_count: sources.len() as u64,
+        highest_source,
+    }
+}
+
+fn count_merged_units(
+    totals: &HashMap<FileId, u64>,
+    ranges_by_file: &HashMap<FileId, Vec<AnalysisUnitRange>>,
+) -> u64 {
+    ranges_by_file
+        .iter()
+        .map(|(file_id, ranges)| {
+            let total = totals.get(file_id).copied().unwrap_or_default();
+            let mut normalized: Vec<_> = ranges
+                .iter()
+                .map(|range| AnalysisUnitRange {
+                    start: range.start.min(total),
+                    end: range.end.min(total),
+                })
+                .filter(|range| range.end > range.start)
+                .collect();
+            normalized.sort_by_key(|range| (range.start, range.end));
+            let mut matched = 0_u64;
+            let mut active: Option<AnalysisUnitRange> = None;
+            for range in normalized {
+                if let Some(current) = active.as_mut()
+                    && range.start <= current.end
+                {
+                    current.end = current.end.max(range.end);
+                } else {
+                    if let Some(current) = active.replace(range) {
+                        matched += current.end - current.start;
+                    }
+                }
+            }
+            if let Some(current) = active {
+                matched += current.end - current.start;
+            }
+            matched
+        })
+        .sum()
+}
+
+fn ratio(numerator: u64, denominator: u64) -> f32 {
+    if denominator == 0 {
+        0.0
+    } else {
+        numerator as f32 / denominator as f32
+    }
+}
+
+fn should_store(evidence: &ComparisonEvidence) -> bool {
+    evidence.similarity.is_finite()
+        && evidence.weighted_similarity.is_finite()
+        && evidence.weighted_similarity >= MIN_WEIGHTED_SOURCE_EVIDENCE
+        && evidence.matched_unit_count > 0
+        && !evidence.matched_unit_ranges.is_empty()
+        && !evidence.risk_regions.is_empty()
 }
 
 impl From<StoredMatchSummary> for FileMatchSummary {
@@ -721,6 +967,7 @@ impl From<StoredMatchSummary> for FileMatchSummary {
             source_work_item_name: value.source_work_item_name,
             algorithm_id: value.algorithm_id,
             similarity: value.similarity,
+            matched_units: value.matched_unit_count,
             risk_count: value.risk_count,
         }
     }
@@ -814,6 +1061,77 @@ mod tests {
         assert_eq!(value["endPage"], 4);
     }
 
+    #[test]
+    fn aggregates_overlapping_matches_separately_by_source_scope() {
+        let totals = HashMap::from([(FileId(1), 10)]);
+        let matches = [
+            stored_match(
+                FileId(1),
+                FileId(2),
+                ComparisonScope::WithinBatch {
+                    batch_id: BatchId(1),
+                },
+                Some(WorkItemId(2)),
+                AnalysisUnitRange { start: 0, end: 5 },
+            ),
+            stored_match(
+                FileId(1),
+                FileId(3),
+                ComparisonScope::WithinBatch {
+                    batch_id: BatchId(1),
+                },
+                Some(WorkItemId(3)),
+                AnalysisUnitRange { start: 3, end: 8 },
+            ),
+            stored_match(
+                FileId(1),
+                FileId(4),
+                ComparisonScope::ReferenceLibrary {
+                    library_id: crate::domain::ReferenceLibraryId(1),
+                },
+                None,
+                AnalysisUnitRange { start: 8, end: 10 },
+            ),
+        ];
+
+        let within_batch =
+            aggregate_similarity_metrics(&totals, matches.iter(), MetricsScope::WithinBatch);
+        let reference =
+            aggregate_similarity_metrics(&totals, matches.iter(), MetricsScope::ReferenceLibrary);
+
+        assert_eq!(within_batch.matched_units, 8);
+        assert_eq!(within_batch.similarity, 0.8);
+        assert_eq!(within_batch.source_count, 2);
+        assert_eq!(reference.matched_units, 2);
+        assert_eq!(reference.similarity, 0.2);
+        assert_eq!(reference.source_count, 1);
+    }
+
+    fn stored_match(
+        query_file_id: FileId,
+        source_file_id: FileId,
+        scope: ComparisonScope,
+        source_work_item_id: Option<WorkItemId>,
+        range: AnalysisUnitRange,
+    ) -> StoredMatchSummary {
+        StoredMatchSummary {
+            id: source_file_id.0,
+            query_file_id,
+            source_file_id,
+            source_name: format!("source-{}", source_file_id.0),
+            source_path: String::new(),
+            scope,
+            scope_name: "container".into(),
+            source_work_item_id,
+            source_work_item_name: source_work_item_id.map(|id| format!("item-{}", id.0)),
+            algorithm_id: "test".into(),
+            similarity: (range.end - range.start) as f32 / 10.0,
+            matched_unit_count: range.end - range.start,
+            matched_unit_ranges: vec![range],
+            risk_count: 1,
+        }
+    }
+
     #[tokio::test]
     async fn imports_batch_and_runs_all_algorithms_against_both_scopes() {
         let directory = tempdir().unwrap();
@@ -874,6 +1192,31 @@ mod tests {
                 .unwrap();
             assert!(matches.iter().any(|item| item.source_kind == "batch"));
             assert!(matches.iter().any(|item| item.source_kind == "reference"));
+            let overview = core
+                .batches()
+                .get_work_item_similarity_overview(items[0].id)
+                .unwrap();
+            assert_eq!(overview.within_batch.source_count, 1, "{algorithm_id}");
+            assert_eq!(overview.reference_library.source_count, 1, "{algorithm_id}");
+            assert!(overview.within_batch.similarity > 0.9, "{algorithm_id}");
+            assert!(
+                overview.reference_library.similarity > 0.9,
+                "{algorithm_id}"
+            );
+            assert_eq!(
+                overview.within_batch.total_units,
+                overview.reference_library.total_units
+            );
+            assert_eq!(
+                overview.within_batch.matched_units,
+                overview.within_batch.total_units
+            );
+            let file_view = core.batches().list_work_item_files(items[0].id).unwrap();
+            assert_eq!(file_view[0].within_batch.source_count, 1, "{algorithm_id}");
+            assert_eq!(
+                file_view[0].reference_library.source_count, 1,
+                "{algorithm_id}"
+            );
             let detail = core
                 .batches()
                 .get_match_detail(query_file.id, matches[0].id)

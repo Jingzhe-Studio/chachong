@@ -11,7 +11,7 @@ use thiserror::Error;
 
 pub use batch_store::{
     BatchFileRecord, InsertBatchFileOutcome, NewBatchFile, NewComparison, ReferenceFileRecord,
-    StoredComparison, StoredMatchSummary,
+    StoredComparison, StoredFileAnalysis, StoredMatchSummary,
 };
 pub use object_store::{ImportedObject, ObjectStore};
 pub use sqlite::{CleanupKeys, InsertReferenceFileOutcome, NewReferenceFile, SqliteStore};

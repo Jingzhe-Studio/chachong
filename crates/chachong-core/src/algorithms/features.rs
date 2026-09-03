@@ -7,8 +7,11 @@ use jieba_rs::{Jieba, TokenizeMode};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    detection::{Candidate, DetectionError, PreparedFile, RetrievalIndex},
-    domain::{FileId, RiskRegion, TextRange},
+    detection::{
+        Candidate, ComparisonEvidence, DetectionError, FeatureWeightProvider, PreparedFile,
+        RetrievalIndex,
+    },
+    domain::{AnalysisUnitRange, FileId, RiskRegion, TextRange},
     parser::ParsedFile,
 };
 
@@ -21,12 +24,16 @@ const CODE_CHUNK_TOKENS: usize = 80;
 const MAX_HASH_OCCURRENCES: usize = 128;
 const MAX_RISK_REGIONS: usize = 200;
 const MIN_CHUNK_RELEVANCE: f32 = 0.30;
+const MIN_INFORMATIVE_CHAIN_UNITS: u64 = 8;
+const MIN_UNIQUE_FEATURE_EQUIVALENTS: f32 = 3.0;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Feature {
     pub hash: u64,
     pub start: u64,
     pub end: u64,
+    pub unit_start: u64,
+    pub unit_end: u64,
     pub chunk: u32,
 }
 
@@ -34,6 +41,12 @@ pub struct Feature {
 pub struct FeaturePayload {
     pub kind: u8,
     pub features: Vec<Feature>,
+}
+
+#[derive(Debug, Clone)]
+pub struct FeatureSequence {
+    features: Vec<Feature>,
+    analysis_unit_count: u64,
 }
 
 #[derive(Debug, Clone)]
@@ -51,24 +64,29 @@ struct MatchChain {
     source_start: usize,
     source_end: usize,
     length: usize,
+    evidence_weight: f32,
 }
 
 pub fn prepare(
     file: &ParsedFile,
     kind: u8,
-    features: Vec<Feature>,
+    sequence: FeatureSequence,
 ) -> Result<PreparedFile, DetectionError> {
-    let payload = serde_json::to_vec(&FeaturePayload { kind, features })
-        .map_err(|error| DetectionError::new(format!("特征序列化失败：{error}")))?;
+    let payload = serde_json::to_vec(&FeaturePayload {
+        kind,
+        features: sequence.features,
+    })
+    .map_err(|error| DetectionError::new(format!("特征序列化失败：{error}")))?;
     Ok(PreparedFile {
         file_id: file.file_id,
-        format_version: 2,
+        format_version: 3,
+        analysis_unit_count: sequence.analysis_unit_count,
         payload,
     })
 }
 
 pub fn decode(file: &PreparedFile, kind: u8) -> Result<FeaturePayload, DetectionError> {
-    if file.format_version != 2 {
+    if file.format_version != 3 {
         return Err(DetectionError::new("不支持的预处理特征版本"));
     }
     let payload: FeaturePayload = serde_json::from_slice(&file.payload)
@@ -79,20 +97,21 @@ pub fn decode(file: &PreparedFile, kind: u8) -> Result<FeaturePayload, Detection
     Ok(payload)
 }
 
-pub fn shingle_features(file: &ParsedFile, width: usize) -> Vec<Feature> {
-    ngram_features(&tokens_for(file), width)
+pub fn shingle_features(file: &ParsedFile, width: usize) -> FeatureSequence {
+    feature_sequence(file, |tokens| ngram_features(tokens, width))
 }
 
-pub fn token_features(file: &ParsedFile) -> Vec<Feature> {
-    ngram_features(&tokens_for(file), 3)
+pub fn token_features(file: &ParsedFile) -> FeatureSequence {
+    feature_sequence(file, |tokens| ngram_features(tokens, 3))
 }
 
 pub fn winnowing_features(
     file: &ParsedFile,
     gram_width: usize,
     window_width: usize,
-) -> Vec<Feature> {
-    let grams = ngram_features(&tokens_for(file), gram_width);
+) -> FeatureSequence {
+    let tokens = tokens_for(file);
+    let grams = ngram_features(&tokens, gram_width);
     let mut selected = Vec::new();
     for group in feature_chunks(&grams) {
         if group.len() <= window_width.saturating_mul(2) || window_width == 0 {
@@ -115,7 +134,21 @@ pub fn winnowing_features(
             }
         }
     }
-    selected
+    FeatureSequence {
+        features: selected,
+        analysis_unit_count: tokens.len() as u64,
+    }
+}
+
+fn feature_sequence(
+    file: &ParsedFile,
+    build: impl FnOnce(&[Token]) -> Vec<Feature>,
+) -> FeatureSequence {
+    let tokens = tokens_for(file);
+    FeatureSequence {
+        features: build(&tokens),
+        analysis_unit_count: tokens.len() as u64,
+    }
 }
 
 pub fn build_chunk_index(
@@ -123,8 +156,8 @@ pub fn build_chunk_index(
     kind: u8,
 ) -> Result<Box<dyn RetrievalIndex>, DetectionError> {
     let mut postings: HashMap<u64, Vec<(FileId, u32)>> = HashMap::new();
+    let mut document_frequencies: HashMap<u64, usize> = HashMap::new();
     let mut exact_signatures: HashMap<u64, Vec<FileId>> = HashMap::new();
-    let mut chunk_count = 0_usize;
 
     for file in corpus {
         let payload = decode(file, kind)?;
@@ -132,8 +165,15 @@ pub fn build_chunk_index(
             .entry(feature_sequence_hash(&payload.features))
             .or_default()
             .push(file.file_id);
+        for hash in payload
+            .features
+            .iter()
+            .map(|feature| feature.hash)
+            .collect::<HashSet<_>>()
+        {
+            *document_frequencies.entry(hash).or_default() += 1;
+        }
         for chunk in feature_chunks(&payload.features) {
-            chunk_count += 1;
             let unique: HashSet<_> = chunk.iter().map(|feature| feature.hash).collect();
             for hash in unique {
                 postings
@@ -147,51 +187,80 @@ pub fn build_chunk_index(
     Ok(Box::new(ChunkIndex {
         kind,
         postings,
+        document_frequencies,
         exact_signatures,
-        chunk_count,
+        document_count: corpus.len(),
     }))
 }
 
 pub fn compare_feature_sequences(
-    query: &[Feature],
-    source: &[Feature],
+    query: &PreparedFile,
+    source: &PreparedFile,
+    kind: u8,
     minimum_chain: usize,
-) -> (f32, Vec<RiskRegion>) {
-    if query.is_empty() || source.is_empty() {
-        return (0.0, Vec::new());
+    weights: &dyn FeatureWeightProvider,
+) -> Result<ComparisonEvidence, DetectionError> {
+    let query_payload = decode(query, kind)?;
+    let source_payload = decode(source, kind)?;
+    let query_features = query_payload.features;
+    let source_features = source_payload.features;
+    if query_features.is_empty() || source_features.is_empty() || query.analysis_unit_count == 0 {
+        return Ok(empty_evidence(query.analysis_unit_count));
     }
-    if query.len() == source.len()
-        && query
+    let feature_weights: Vec<_> = query_features
+        .iter()
+        .map(|feature| sanitize_weight(weights.feature_weight(feature.hash)))
+        .collect();
+    let total_feature_weight: f32 = feature_weights.iter().sum();
+    if query.analysis_unit_count == source.analysis_unit_count
+        && query_features.len() == source_features.len()
+        && query_features
             .iter()
-            .zip(source)
+            .zip(&source_features)
             .all(|(left, right)| left.hash == right.hash)
     {
-        return (
-            1.0,
-            vec![RiskRegion {
+        return Ok(ComparisonEvidence {
+            similarity: 1.0,
+            weighted_similarity: 1.0,
+            query_unit_count: query.analysis_unit_count,
+            matched_unit_count: query.analysis_unit_count,
+            matched_unit_ranges: vec![AnalysisUnitRange {
+                start: 0,
+                end: query.analysis_unit_count,
+            }],
+            risk_regions: vec![RiskRegion {
                 query_range: TextRange {
-                    start: query[0].start,
-                    end: query[query.len() - 1].end,
+                    start: query_features[0].start,
+                    end: query_features[query_features.len() - 1].end,
                 },
                 source_range: Some(TextRange {
-                    start: source[0].start,
-                    end: source[source.len() - 1].end,
+                    start: source_features[0].start,
+                    end: source_features[source_features.len() - 1].end,
                 }),
                 score: 1.0,
             }],
-        );
+        });
     }
 
     let mut positions: HashMap<u64, Vec<usize>> = HashMap::new();
-    for (index, feature) in source.iter().enumerate() {
+    for (index, feature) in source_features.iter().enumerate() {
         positions.entry(feature.hash).or_default().push(index);
     }
 
-    let required = minimum_chain.min(query.len()).min(source.len()).max(1);
+    let required = minimum_chain
+        .min(query_features.len())
+        .min(source_features.len())
+        .max(1);
+    let evidence_floor = sanitize_weight(weights.evidence_floor());
+    let mut weight_prefix = Vec::with_capacity(feature_weights.len() + 1);
+    weight_prefix.push(0.0);
+    for weight in &feature_weights {
+        weight_prefix.push(weight_prefix.last().copied().unwrap_or_default() + weight);
+    }
     let mut previous: HashMap<usize, usize> = HashMap::new();
     let mut chains = Vec::new();
 
-    for (query_index, feature) in query.iter().enumerate() {
+    for (query_index, feature) in query_features.iter().enumerate() {
         let mut current = HashMap::new();
         if let Some(source_indexes) = positions.get(&feature.hash)
             && source_indexes.len() <= MAX_HASH_OCCURRENCES
@@ -205,12 +274,25 @@ pub fn compare_feature_sequences(
                     + 1;
                 current.insert(source_index, length);
                 if length >= required {
+                    let query_start = query_index + 1 - length;
+                    let evidence_weight =
+                        weight_prefix[query_index + 1] - weight_prefix[query_start];
+                    let matched_units = query_features[query_index]
+                        .unit_end
+                        .saturating_sub(query_features[query_start].unit_start);
+                    if evidence_weight + f32::EPSILON < evidence_floor
+                        || (evidence_floor > f32::EPSILON
+                            && matched_units < MIN_INFORMATIVE_CHAIN_UNITS)
+                    {
+                        continue;
+                    }
                     chains.push(MatchChain {
-                        query_start: query_index + 1 - length,
+                        query_start,
                         query_end: query_index,
                         source_start: source_index + 1 - length,
                         source_end: source_index,
                         length,
+                        evidence_weight,
                     });
                 }
             }
@@ -220,13 +302,14 @@ pub fn compare_feature_sequences(
 
     chains.sort_by(|left, right| {
         right
-            .length
-            .cmp(&left.length)
+            .evidence_weight
+            .total_cmp(&left.evidence_weight)
+            .then_with(|| right.length.cmp(&left.length))
             .then_with(|| left.query_start.cmp(&right.query_start))
             .then_with(|| left.source_start.cmp(&right.source_start))
     });
 
-    let mut covered = vec![false; query.len()];
+    let mut covered = vec![false; query_features.len()];
     let mut selected = Vec::new();
     for chain in chains {
         if covered[chain.query_start..=chain.query_end]
@@ -237,36 +320,108 @@ pub fn compare_feature_sequences(
         }
         covered[chain.query_start..=chain.query_end].fill(true);
         selected.push(chain);
-        if selected.len() == MAX_RISK_REGIONS {
-            break;
-        }
     }
 
-    let matched = covered.iter().filter(|covered| **covered).count();
-    let similarity = matched as f32 / query.len() as f32;
     selected.sort_by_key(|chain| chain.query_start);
-    let regions = selected
-        .into_iter()
+    let matched_unit_ranges = merge_unit_ranges(selected.iter().map(|chain| AnalysisUnitRange {
+        start: query_features[chain.query_start].unit_start,
+        end: query_features[chain.query_end].unit_end,
+    }));
+    let matched_unit_count = matched_unit_ranges
+        .iter()
+        .map(|range| range.end.saturating_sub(range.start))
+        .sum();
+    let similarity = matched_unit_count as f32 / query.analysis_unit_count as f32;
+    let matched_feature_weight: f32 = selected.iter().map(|chain| chain.evidence_weight).sum();
+    let weighted_similarity = if total_feature_weight <= f32::EPSILON {
+        0.0
+    } else {
+        (matched_feature_weight / total_feature_weight).clamp(0.0, 1.0)
+    };
+    let risk_regions = selected
+        .iter()
+        .take(MAX_RISK_REGIONS)
         .map(|chain| RiskRegion {
             query_range: TextRange {
-                start: query[chain.query_start].start,
-                end: query[chain.query_end].end,
+                start: query_features[chain.query_start].start,
+                end: query_features[chain.query_end].end,
             },
             source_range: Some(TextRange {
-                start: source[chain.source_start].start,
-                end: source[chain.source_end].end,
+                start: source_features[chain.source_start].start,
+                end: source_features[chain.source_end].end,
             }),
             score: similarity,
         })
         .collect();
-    (similarity, regions)
+    Ok(ComparisonEvidence {
+        similarity,
+        weighted_similarity,
+        query_unit_count: query.analysis_unit_count,
+        matched_unit_count,
+        matched_unit_ranges,
+        risk_regions,
+    })
+}
+
+fn empty_evidence(query_unit_count: u64) -> ComparisonEvidence {
+    ComparisonEvidence {
+        similarity: 0.0,
+        weighted_similarity: 0.0,
+        query_unit_count,
+        matched_unit_count: 0,
+        matched_unit_ranges: Vec::new(),
+        risk_regions: Vec::new(),
+    }
+}
+
+fn sanitize_weight(weight: f32) -> f32 {
+    if weight.is_finite() && weight > 0.0 {
+        weight
+    } else {
+        0.0
+    }
+}
+
+pub fn merge_unit_ranges(
+    ranges: impl IntoIterator<Item = AnalysisUnitRange>,
+) -> Vec<AnalysisUnitRange> {
+    let mut ranges: Vec<_> = ranges
+        .into_iter()
+        .filter(|range| range.end > range.start)
+        .collect();
+    ranges.sort_by_key(|range| (range.start, range.end));
+    let mut merged: Vec<AnalysisUnitRange> = Vec::new();
+    for range in ranges {
+        if let Some(previous) = merged.last_mut()
+            && range.start <= previous.end
+        {
+            previous.end = previous.end.max(range.end);
+        } else {
+            merged.push(range);
+        }
+    }
+    merged
 }
 
 struct ChunkIndex {
     kind: u8,
     postings: HashMap<u64, Vec<(FileId, u32)>>,
+    document_frequencies: HashMap<u64, usize>,
     exact_signatures: HashMap<u64, Vec<FileId>>,
-    chunk_count: usize,
+    document_count: usize,
+}
+
+impl FeatureWeightProvider for ChunkIndex {
+    fn feature_weight(&self, hash: u64) -> f32 {
+        inverse_frequency(
+            self.document_count,
+            self.document_frequencies.get(&hash).copied().unwrap_or(0),
+        )
+    }
+
+    fn evidence_floor(&self) -> f32 {
+        inverse_frequency(self.document_count, 0) * MIN_UNIQUE_FEATURE_EQUIVALENTS
+    }
 }
 
 impl RetrievalIndex for ChunkIndex {
@@ -291,11 +446,9 @@ impl RetrievalIndex for ChunkIndex {
             let usable: Vec<_> = query_hashes
                 .into_iter()
                 .filter_map(|hash| {
-                    let frequency = self.postings.get(&hash)?.len();
-                    if self.chunk_count >= 8 && frequency * 5 >= self.chunk_count * 4 {
-                        return None;
-                    }
-                    Some((hash, inverse_frequency(self.chunk_count, frequency)))
+                    self.postings.get(&hash)?;
+                    let weight = self.feature_weight(hash);
+                    (weight > f32::EPSILON).then_some((hash, weight))
                 })
                 .collect();
             if usable.is_empty() {
@@ -550,12 +703,13 @@ fn code_tokens(text: &str) -> Vec<Token> {
 
 fn ngram_features(tokens: &[Token], width: usize) -> Vec<Feature> {
     let mut features = Vec::new();
+    let mut unit_offset = 0_usize;
     for chunk in token_chunks(tokens) {
         if chunk.is_empty() {
             continue;
         }
         let actual_width = width.min(chunk.len());
-        for window in chunk.windows(actual_width) {
+        for (relative_index, window) in chunk.windows(actual_width).enumerate() {
             let hash = window
                 .iter()
                 .fold(FNV_OFFSET, |hash, token| mix64(hash ^ token.hash));
@@ -563,9 +717,12 @@ fn ngram_features(tokens: &[Token], width: usize) -> Vec<Feature> {
                 hash,
                 start: window[0].start,
                 end: window[window.len() - 1].end,
+                unit_start: (unit_offset + relative_index) as u64,
+                unit_end: (unit_offset + relative_index + window.len()) as u64,
                 chunk: window[0].chunk,
             });
         }
+        unit_offset += chunk.len();
     }
     features
 }
@@ -594,7 +751,13 @@ fn contiguous_groups<T, K: PartialEq + Copy>(items: &[T], key: impl Fn(&T) -> K)
 }
 
 fn inverse_frequency(total: usize, frequency: usize) -> f32 {
-    ((total as f32 + 1.0) / (frequency as f32 + 0.5)).ln() + 1.0
+    if total <= 1 {
+        // A one-document corpus has no frequency contrast. Keep the ordinary
+        // minimum-chain behavior instead of suppressing every partial match.
+        1.0
+    } else {
+        ((total as f32 + 1.0) / (frequency.min(total) as f32 + 1.0)).ln()
+    }
 }
 
 fn feature_sequence_hash(features: &[Feature]) -> u64 {
@@ -635,9 +798,21 @@ fn mix64(mut value: u64) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{domain::FileCategory, parser::ParsedFile};
+    use crate::{detection::FeatureWeightProvider, domain::FileCategory, parser::ParsedFile};
 
     use super::*;
+
+    struct UniformTestWeights;
+
+    impl FeatureWeightProvider for UniformTestWeights {
+        fn feature_weight(&self, _hash: u64) -> f32 {
+            1.0
+        }
+
+        fn evidence_floor(&self) -> f32 {
+            0.0
+        }
+    }
 
     #[test]
     fn document_tokenization_keeps_words_and_utf8_boundaries() {
@@ -689,19 +864,116 @@ mod tests {
             "prefix words alpha beta gamma delta epsilon zeta eta theta suffix words",
         );
         let query_text = query.text.clone();
-        let query = token_features(&query);
-        let exact = token_features(&exact);
-        let containing = token_features(&containing);
+        let query = prepare(&query, TOKEN_KIND, token_features(&query)).unwrap();
+        let exact = prepare(&exact, TOKEN_KIND, token_features(&exact)).unwrap();
+        let containing = prepare(&containing, TOKEN_KIND, token_features(&containing)).unwrap();
 
-        let (exact_score, exact_regions) = compare_feature_sequences(&query, &exact, 3);
-        assert_eq!(exact_score, 1.0);
-        assert_eq!(exact_regions.len(), 1);
-        let range = exact_regions[0].query_range;
+        let exact_evidence =
+            compare_feature_sequences(&query, &exact, TOKEN_KIND, 3, &UniformTestWeights).unwrap();
+        assert_eq!(exact_evidence.similarity, 1.0);
+        assert_eq!(exact_evidence.matched_unit_count, 8);
+        assert_eq!(exact_evidence.query_unit_count, 8);
+        assert_eq!(exact_evidence.risk_regions.len(), 1);
+        let range = exact_evidence.risk_regions[0].query_range;
         assert_eq!(
             &query_text[range.start as usize..range.end as usize],
             query_text
         );
-        assert!(compare_feature_sequences(&query, &containing, 3).0 > 0.95);
+        assert!(
+            compare_feature_sequences(&query, &containing, TOKEN_KIND, 3, &UniformTestWeights,)
+                .unwrap()
+                .similarity
+                > 0.95
+        );
+    }
+
+    #[test]
+    fn corpus_idf_rejects_common_only_chain_and_keeps_rare_chain() {
+        let common = "standard common phrase appears here";
+        let mut corpus: Vec<_> = (0..10)
+            .map(|id| {
+                let file = parsed(
+                    id,
+                    FileCategory::Document,
+                    &format!("{common} ordinary filler document number {id}"),
+                );
+                prepare(&file, TOKEN_KIND, token_features(&file)).unwrap()
+            })
+            .collect();
+        let common_source_file = parsed(
+            20,
+            FileCategory::Document,
+            &format!("{common} unrelated ending material"),
+        );
+        let rare_source_file = parsed(
+            21,
+            FileCategory::Document,
+            "quantum lattice entropy beacon rotates silently beyond hidden orbital vectors",
+        );
+        let common_source = prepare(
+            &common_source_file,
+            TOKEN_KIND,
+            token_features(&common_source_file),
+        )
+        .unwrap();
+        let rare_source = prepare(
+            &rare_source_file,
+            TOKEN_KIND,
+            token_features(&rare_source_file),
+        )
+        .unwrap();
+        corpus.extend([common_source.clone(), rare_source.clone()]);
+        let index = build_chunk_index(&corpus, TOKEN_KIND).unwrap();
+
+        let common_query_file = parsed(
+            30,
+            FileCategory::Document,
+            &format!("prefix {common} query ending"),
+        );
+        let rare_query_file = parsed(
+            31,
+            FileCategory::Document,
+            "prefix quantum lattice entropy beacon rotates silently beyond hidden orbital vectors suffix",
+        );
+        let common_query = prepare(
+            &common_query_file,
+            TOKEN_KIND,
+            token_features(&common_query_file),
+        )
+        .unwrap();
+        let rare_query = prepare(
+            &rare_query_file,
+            TOKEN_KIND,
+            token_features(&rare_query_file),
+        )
+        .unwrap();
+
+        let common_evidence =
+            compare_feature_sequences(&common_query, &common_source, TOKEN_KIND, 3, index.as_ref())
+                .unwrap();
+        let rare_evidence =
+            compare_feature_sequences(&rare_query, &rare_source, TOKEN_KIND, 3, index.as_ref())
+                .unwrap();
+
+        assert_eq!(common_evidence.similarity, 0.0);
+        assert_eq!(common_evidence.weighted_similarity, 0.0);
+        assert!(rare_evidence.similarity > 0.5);
+        assert!(rare_evidence.weighted_similarity > 0.0);
+    }
+
+    #[test]
+    fn merged_unit_ranges_count_overlapping_sources_only_once() {
+        assert_eq!(
+            merge_unit_ranges([
+                AnalysisUnitRange { start: 2, end: 8 },
+                AnalysisUnitRange { start: 5, end: 10 },
+                AnalysisUnitRange { start: 12, end: 15 },
+            ]),
+            vec![
+                AnalysisUnitRange { start: 2, end: 10 },
+                AnalysisUnitRange { start: 12, end: 15 },
+            ]
+        );
     }
 
     #[test]

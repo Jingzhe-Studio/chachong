@@ -1,8 +1,8 @@
 use rusqlite::{OptionalExtension, params};
 
 use crate::domain::{
-    BatchId, BatchSummary, ComparisonScope, DetectionStatus, FileCategory, FileId, ManagedFile,
-    ParseStatus, ReferenceLibraryId, RiskRegion, WorkItemId, WorkItemSummary,
+    AnalysisUnitRange, BatchId, BatchSummary, ComparisonScope, DetectionStatus, FileCategory,
+    FileId, ManagedFile, ParseStatus, ReferenceLibraryId, RiskRegion, WorkItemId, WorkItemSummary,
 };
 
 use super::sqlite::{conversion_error, map_file, now, parse_category_sql, prune_orphan_file};
@@ -47,6 +47,9 @@ pub struct NewComparison {
     pub scope: ComparisonScope,
     pub algorithm_id: String,
     pub similarity: f32,
+    pub query_unit_count: u64,
+    pub matched_unit_count: u64,
+    pub matched_unit_ranges: Vec<AnalysisUnitRange>,
     pub risk_regions: Vec<RiskRegion>,
 }
 
@@ -59,20 +62,33 @@ pub struct StoredComparison {
     pub scope: ComparisonScope,
     pub algorithm_id: String,
     pub similarity: f32,
+    pub query_unit_count: u64,
+    pub matched_unit_count: u64,
+    pub matched_unit_ranges: Vec<AnalysisUnitRange>,
     pub risk_regions: Vec<RiskRegion>,
+}
+
+#[derive(Debug, Clone)]
+pub struct StoredFileAnalysis {
+    pub file_id: FileId,
+    pub total_units: u64,
 }
 
 #[derive(Debug, Clone)]
 pub struct StoredMatchSummary {
     pub id: u64,
+    pub query_file_id: FileId,
     pub source_file_id: FileId,
     pub source_name: String,
     pub source_path: String,
     pub scope: ComparisonScope,
     pub scope_name: String,
+    pub source_work_item_id: Option<WorkItemId>,
     pub source_work_item_name: Option<String>,
     pub algorithm_id: String,
     pub similarity: f32,
+    pub matched_unit_count: u64,
+    pub matched_unit_ranges: Vec<AnalysisUnitRange>,
     pub risk_count: u64,
 }
 
@@ -458,11 +474,17 @@ impl SqliteStore {
     }
 
     pub fn clear_batch_results(&self, batch_id: BatchId) -> Result<(), StorageError> {
-        let connection = self.connection.lock()?;
-        connection.execute(
+        let mut connection = self.connection.lock()?;
+        let transaction = connection.transaction()?;
+        transaction.execute(
             "DELETE FROM comparison_results WHERE batch_id = ?1",
             [batch_id.0 as i64],
         )?;
+        transaction.execute(
+            "DELETE FROM detection_file_stats WHERE batch_id = ?1",
+            [batch_id.0 as i64],
+        )?;
+        transaction.commit()?;
         Ok(())
     }
 
@@ -470,6 +492,7 @@ impl SqliteStore {
         let mut connection = self.connection.lock()?;
         let transaction = connection.transaction()?;
         transaction.execute("DELETE FROM comparison_results", [])?;
+        transaction.execute("DELETE FROM detection_file_stats", [])?;
         transaction.execute(
             "UPDATE batches
              SET detection_status = 'pending', algorithm_id = NULL,
@@ -480,17 +503,72 @@ impl SqliteStore {
         Ok(())
     }
 
+    pub fn upsert_file_analysis(
+        &self,
+        batch_id: BatchId,
+        file_id: FileId,
+        algorithm_id: &str,
+        total_units: u64,
+    ) -> Result<(), StorageError> {
+        let connection = self.connection.lock()?;
+        connection.execute(
+            "INSERT INTO detection_file_stats (
+                 batch_id, file_id, algorithm_id, total_units
+             ) VALUES (?1, ?2, ?3, ?4)
+             ON CONFLICT(batch_id, file_id, algorithm_id)
+             DO UPDATE SET total_units = excluded.total_units",
+            params![
+                batch_id.0 as i64,
+                file_id.0 as i64,
+                algorithm_id,
+                total_units as i64,
+            ],
+        )?;
+        Ok(())
+    }
+
+    pub fn list_work_item_file_analyses(
+        &self,
+        batch_id: BatchId,
+        work_item_id: WorkItemId,
+        algorithm_id: &str,
+    ) -> Result<Vec<StoredFileAnalysis>, StorageError> {
+        let connection = self.connection.lock()?;
+        let mut statement = connection.prepare(
+            "SELECT s.file_id, s.total_units
+             FROM detection_file_stats s
+             INNER JOIN work_item_files wf ON wf.file_id = s.file_id
+             WHERE s.batch_id = ?1 AND wf.work_item_id = ?2 AND s.algorithm_id = ?3
+             ORDER BY s.file_id",
+        )?;
+        let rows = statement.query_map(
+            params![batch_id.0 as i64, work_item_id.0 as i64, algorithm_id],
+            |row| {
+                Ok(StoredFileAnalysis {
+                    file_id: FileId(row.get::<_, i64>(0)? as u64),
+                    total_units: row.get::<_, i64>(1)? as u64,
+                })
+            },
+        )?;
+        rows.collect::<Result<Vec<_>, _>>().map_err(Into::into)
+    }
+
     pub fn insert_comparison(&self, comparison: &NewComparison) -> Result<(), StorageError> {
         let (scope_type, scope_id) = scope_parts(comparison.scope);
+        let matched_unit_ranges = serde_json::to_string(&comparison.matched_unit_ranges)?;
         let risk_regions = serde_json::to_string(&comparison.risk_regions)?;
         let connection = self.connection.lock()?;
         connection.execute(
             "INSERT INTO comparison_results (
                  batch_id, query_file_id, source_file_id, scope_type, scope_id,
-                 algorithm_id, similarity, risk_regions_json, created_at
-             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)
+                 algorithm_id, similarity, query_unit_count, matched_unit_count,
+                 matched_unit_ranges_json, risk_regions_json, created_at
+             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
              ON CONFLICT(batch_id, query_file_id, source_file_id, scope_type, scope_id, algorithm_id)
              DO UPDATE SET similarity = excluded.similarity,
+                           query_unit_count = excluded.query_unit_count,
+                           matched_unit_count = excluded.matched_unit_count,
+                           matched_unit_ranges_json = excluded.matched_unit_ranges_json,
                            risk_regions_json = excluded.risk_regions_json,
                            created_at = excluded.created_at",
             params![
@@ -501,6 +579,9 @@ impl SqliteStore {
                 scope_id,
                 comparison.algorithm_id,
                 comparison.similarity,
+                comparison.query_unit_count as i64,
+                comparison.matched_unit_count as i64,
+                matched_unit_ranges,
                 risk_regions,
                 now(),
             ],
@@ -516,10 +597,11 @@ impl SqliteStore {
     ) -> Result<Vec<StoredMatchSummary>, StorageError> {
         let connection = self.connection.lock()?;
         let mut statement = connection.prepare(
-            "SELECT r.id, r.source_file_id, m.name, m.relative_path,
+            "SELECT r.id, r.query_file_id, r.source_file_id, m.name, m.relative_path,
                     r.scope_type, r.scope_id, r.algorithm_id, r.similarity,
-                    r.risk_regions_json,
+                    r.matched_unit_count, r.matched_unit_ranges_json, r.risk_regions_json,
                     CASE WHEN r.scope_type = 'reference' THEN rl.name ELSE b.name END,
+                    CASE WHEN r.scope_type = 'batch' THEN wi.id ELSE NULL END,
                     CASE WHEN r.scope_type = 'batch' THEN wi.name ELSE NULL END
              FROM comparison_results r
              INNER JOIN managed_files m ON m.id = r.source_file_id
@@ -531,36 +613,45 @@ impl SqliteStore {
                     ON r.scope_type = 'batch' AND wf.file_id = r.source_file_id
              LEFT JOIN work_items wi ON wi.id = wf.work_item_id
              WHERE r.batch_id = ?1 AND r.query_file_id = ?2 AND r.algorithm_id = ?3
-             ORDER BY r.similarity DESC, r.id",
+            ORDER BY r.similarity DESC, r.id",
         )?;
         let rows = statement.query_map(
             params![batch_id.0 as i64, query_file_id.0 as i64, algorithm_id],
-            |row| {
-                let scope_type: String = row.get(4)?;
-                let scope_id: i64 = row.get(5)?;
-                let risk_json: String = row.get(8)?;
-                let risks: Vec<RiskRegion> = serde_json::from_str(&risk_json).map_err(|error| {
-                    rusqlite::Error::FromSqlConversionFailure(
-                        8,
-                        rusqlite::types::Type::Text,
-                        Box::new(error),
-                    )
-                })?;
-                Ok(StoredMatchSummary {
-                    id: row.get::<_, i64>(0)? as u64,
-                    source_file_id: FileId(row.get::<_, i64>(1)? as u64),
-                    source_name: row.get(2)?,
-                    source_path: row.get(3)?,
-                    scope: parse_scope(&scope_type, scope_id, 4)?,
-                    algorithm_id: row.get(6)?,
-                    similarity: row.get(7)?,
-                    risk_count: risks.len() as u64,
-                    scope_name: row
-                        .get::<_, Option<String>>(9)?
-                        .unwrap_or_else(|| "已删除来源".into()),
-                    source_work_item_name: row.get(10)?,
-                })
-            },
+            map_match_summary,
+        )?;
+        rows.collect::<Result<Vec<_>, _>>().map_err(Into::into)
+    }
+
+    pub fn list_work_item_matches(
+        &self,
+        batch_id: BatchId,
+        work_item_id: WorkItemId,
+        algorithm_id: &str,
+    ) -> Result<Vec<StoredMatchSummary>, StorageError> {
+        let connection = self.connection.lock()?;
+        let mut statement = connection.prepare(
+            "SELECT r.id, r.query_file_id, r.source_file_id, m.name, m.relative_path,
+                    r.scope_type, r.scope_id, r.algorithm_id, r.similarity,
+                    r.matched_unit_count, r.matched_unit_ranges_json, r.risk_regions_json,
+                    CASE WHEN r.scope_type = 'reference' THEN rl.name ELSE b.name END,
+                    CASE WHEN r.scope_type = 'batch' THEN wi.id ELSE NULL END,
+                    CASE WHEN r.scope_type = 'batch' THEN wi.name ELSE NULL END
+             FROM comparison_results r
+             INNER JOIN work_item_files query_wf ON query_wf.file_id = r.query_file_id
+             INNER JOIN managed_files m ON m.id = r.source_file_id
+             LEFT JOIN reference_libraries rl
+                    ON r.scope_type = 'reference' AND rl.id = r.scope_id
+             LEFT JOIN batches b
+                    ON r.scope_type = 'batch' AND b.id = r.scope_id
+             LEFT JOIN work_item_files source_wf
+                    ON r.scope_type = 'batch' AND source_wf.file_id = r.source_file_id
+             LEFT JOIN work_items wi ON wi.id = source_wf.work_item_id
+             WHERE r.batch_id = ?1 AND query_wf.work_item_id = ?2 AND r.algorithm_id = ?3
+             ORDER BY r.query_file_id, r.similarity DESC, r.id",
+        )?;
+        let rows = statement.query_map(
+            params![batch_id.0 as i64, work_item_id.0 as i64, algorithm_id],
+            map_match_summary,
         )?;
         rows.collect::<Result<Vec<_>, _>>().map_err(Into::into)
     }
@@ -574,17 +665,27 @@ impl SqliteStore {
         connection
             .query_row(
                 "SELECT id, batch_id, query_file_id, source_file_id, scope_type,
-                        scope_id, algorithm_id, similarity, risk_regions_json
+                        scope_id, algorithm_id, similarity, query_unit_count,
+                        matched_unit_count, matched_unit_ranges_json, risk_regions_json
                  FROM comparison_results
                  WHERE id = ?1 AND query_file_id = ?2",
                 params![result_id as i64, query_file_id.0 as i64],
                 |row| {
                     let scope_type: String = row.get(4)?;
                     let scope_id: i64 = row.get(5)?;
-                    let risk_json: String = row.get(8)?;
+                    let matched_json: String = row.get(10)?;
+                    let matched_unit_ranges =
+                        serde_json::from_str(&matched_json).map_err(|error| {
+                            rusqlite::Error::FromSqlConversionFailure(
+                                10,
+                                rusqlite::types::Type::Text,
+                                Box::new(error),
+                            )
+                        })?;
+                    let risk_json: String = row.get(11)?;
                     let risk_regions = serde_json::from_str(&risk_json).map_err(|error| {
                         rusqlite::Error::FromSqlConversionFailure(
-                            8,
+                            11,
                             rusqlite::types::Type::Text,
                             Box::new(error),
                         )
@@ -597,6 +698,9 @@ impl SqliteStore {
                         scope: parse_scope(&scope_type, scope_id, 4)?,
                         algorithm_id: row.get(6)?,
                         similarity: row.get(7)?,
+                        query_unit_count: row.get::<_, i64>(8)? as u64,
+                        matched_unit_count: row.get::<_, i64>(9)? as u64,
+                        matched_unit_ranges,
                         risk_regions,
                     })
                 },
@@ -604,6 +708,39 @@ impl SqliteStore {
             .optional()
             .map_err(Into::into)
     }
+}
+
+fn map_match_summary(row: &rusqlite::Row<'_>) -> rusqlite::Result<StoredMatchSummary> {
+    let scope_type: String = row.get(5)?;
+    let scope_id: i64 = row.get(6)?;
+    let matched_json: String = row.get(10)?;
+    let matched_unit_ranges = serde_json::from_str(&matched_json).map_err(|error| {
+        rusqlite::Error::FromSqlConversionFailure(10, rusqlite::types::Type::Text, Box::new(error))
+    })?;
+    let risk_json: String = row.get(11)?;
+    let risks: Vec<RiskRegion> = serde_json::from_str(&risk_json).map_err(|error| {
+        rusqlite::Error::FromSqlConversionFailure(11, rusqlite::types::Type::Text, Box::new(error))
+    })?;
+    Ok(StoredMatchSummary {
+        id: row.get::<_, i64>(0)? as u64,
+        query_file_id: FileId(row.get::<_, i64>(1)? as u64),
+        source_file_id: FileId(row.get::<_, i64>(2)? as u64),
+        source_name: row.get(3)?,
+        source_path: row.get(4)?,
+        scope: parse_scope(&scope_type, scope_id, 5)?,
+        algorithm_id: row.get(7)?,
+        similarity: row.get(8)?,
+        matched_unit_count: row.get::<_, i64>(9)? as u64,
+        matched_unit_ranges,
+        risk_count: risks.len() as u64,
+        scope_name: row
+            .get::<_, Option<String>>(12)?
+            .unwrap_or_else(|| "已删除来源".into()),
+        source_work_item_id: row
+            .get::<_, Option<i64>>(13)?
+            .map(|id| WorkItemId(id as u64)),
+        source_work_item_name: row.get(14)?,
+    })
 }
 
 fn map_file_offset(row: &rusqlite::Row<'_>, offset: usize) -> rusqlite::Result<ManagedFile> {

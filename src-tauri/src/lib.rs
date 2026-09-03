@@ -4,6 +4,7 @@ use chachong_core::{
     application::{
         AppCore, BatchFileProgress, BatchImportSummary, DetectionRunSummary, FileMatchSummary,
         MatchDetail, ReferenceFileProgress, ReferenceImportSummary, WorkItemFileView,
+        WorkItemSimilarityOverview,
     },
     domain::{
         BatchId, BatchSummary, FileCategory, FileId, ManagedFile, ReferenceLibrary,
@@ -123,6 +124,16 @@ fn list_work_item_files(
 ) -> Result<Vec<WorkItemFileView>, String> {
     core.batches()
         .list_work_item_files(WorkItemId(work_item_id))
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command(rename_all = "camelCase")]
+fn get_work_item_similarity_overview(
+    core: tauri::State<'_, AppCore>,
+    work_item_id: u64,
+) -> Result<WorkItemSimilarityOverview, String> {
+    core.batches()
+        .get_work_item_similarity_overview(WorkItemId(work_item_id))
         .map_err(|error| error.to_string())
 }
 
@@ -329,6 +340,7 @@ pub fn run() {
             list_work_items,
             get_work_item,
             list_work_item_files,
+            get_work_item_similarity_overview,
             retry_batch_parse,
             run_batch_detection,
             list_file_matches,

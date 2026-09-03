@@ -1,0 +1,590 @@
+[
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_001.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1,
+    "endWord": 260
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_002.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 37,
+    "endWord": 296
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_003.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 72,
+    "endWord": 331
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_004.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 107,
+    "endWord": 366
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_005.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 143,
+    "endWord": 402
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_006.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 179,
+    "endWord": 438
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_007.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 214,
+    "endWord": 473
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_008.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 249,
+    "endWord": 508
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_009.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 285,
+    "endWord": 544
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_010.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 321,
+    "endWord": 580
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_011.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 356,
+    "endWord": 615
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_012.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 391,
+    "endWord": 650
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_013.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 427,
+    "endWord": 686
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_014.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 463,
+    "endWord": 722
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_015.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 498,
+    "endWord": 757
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_016.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 533,
+    "endWord": 792
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_017.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 569,
+    "endWord": 828
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_018.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 605,
+    "endWord": 864
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_019.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 640,
+    "endWord": 899
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_020.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 675,
+    "endWord": 934
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_021.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 711,
+    "endWord": 970
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_022.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 747,
+    "endWord": 1006
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_023.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 782,
+    "endWord": 1041
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_024.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 817,
+    "endWord": 1076
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_025.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 853,
+    "endWord": 1112
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_026.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 889,
+    "endWord": 1148
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_027.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 924,
+    "endWord": 1183
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_028.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 959,
+    "endWord": 1218
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_029.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 995,
+    "endWord": 1254
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_030.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1031,
+    "endWord": 1290
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_031.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1066,
+    "endWord": 1325
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_032.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1101,
+    "endWord": 1360
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_033.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1137,
+    "endWord": 1396
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_034.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1173,
+    "endWord": 1432
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_035.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1208,
+    "endWord": 1467
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_036.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1243,
+    "endWord": 1502
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_037.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1279,
+    "endWord": 1538
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_038.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1315,
+    "endWord": 1574
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_039.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1350,
+    "endWord": 1609
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_040.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1385,
+    "endWord": 1644
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_041.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1421,
+    "endWord": 1680
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_042.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1457,
+    "endWord": 1716
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_043.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1492,
+    "endWord": 1751
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_044.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1527,
+    "endWord": 1786
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_045.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1563,
+    "endWord": 1822
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_046.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1599,
+    "endWord": 1858
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_047.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1634,
+    "endWord": 1893
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_048.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1669,
+    "endWord": 1928
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05171v1/excerpt_049.pdf",
+    "sourceId": "arXiv:1604.05171v1",
+    "startWord": 1705,
+    "endWord": 1964
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_001.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1,
+    "endWord": 260
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_002.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 39,
+    "endWord": 298
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_003.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 77,
+    "endWord": 336
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_004.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 115,
+    "endWord": 374
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_005.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 153,
+    "endWord": 412
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_006.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 191,
+    "endWord": 450
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_007.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 229,
+    "endWord": 488
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_008.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 267,
+    "endWord": 526
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_009.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 305,
+    "endWord": 564
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_010.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 342,
+    "endWord": 601
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_011.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 380,
+    "endWord": 639
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_012.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 418,
+    "endWord": 677
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_013.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 456,
+    "endWord": 715
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_014.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 494,
+    "endWord": 753
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_015.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 532,
+    "endWord": 791
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_016.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 570,
+    "endWord": 829
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_017.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 608,
+    "endWord": 867
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_018.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 646,
+    "endWord": 905
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_019.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 684,
+    "endWord": 943
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_020.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 722,
+    "endWord": 981
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_021.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 760,
+    "endWord": 1019
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_022.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 798,
+    "endWord": 1057
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_023.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 836,
+    "endWord": 1095
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_024.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 874,
+    "endWord": 1133
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_025.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 911,
+    "endWord": 1170
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_026.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 949,
+    "endWord": 1208
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_027.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 987,
+    "endWord": 1246
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_028.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1025,
+    "endWord": 1284
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_029.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1063,
+    "endWord": 1322
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_030.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1101,
+    "endWord": 1360
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_031.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1139,
+    "endWord": 1398
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_032.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1177,
+    "endWord": 1436
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_033.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1215,
+    "endWord": 1474
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_034.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1253,
+    "endWord": 1512
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_035.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1291,
+    "endWord": 1550
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_036.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1329,
+    "endWord": 1588
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_037.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1367,
+    "endWord": 1626
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_038.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1405,
+    "endWord": 1664
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_039.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1443,
+    "endWord": 1702
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_040.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1481,
+    "endWord": 1740
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_041.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1519,
+    "endWord": 1778
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_042.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1556,
+    "endWord": 1815
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_043.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1594,
+    "endWord": 1853
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_044.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1632,
+    "endWord": 1891
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_045.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1670,
+    "endWord": 1929
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_046.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1708,
+    "endWord": 1967
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_047.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1746,
+    "endWord": 2005
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_048.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1784,
+    "endWord": 2043
+  },
+  {
+    "path": "reference_library/documents/arxiv_1604_05177v1/excerpt_049.pdf",
+    "sourceId": "arXiv:1604.05177v1",
+    "startWord": 1822,
+    "endWord": 2081
+  }
+]

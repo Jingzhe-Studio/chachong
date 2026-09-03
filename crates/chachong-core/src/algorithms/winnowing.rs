@@ -1,11 +1,10 @@
 use crate::{
     algorithms::features::{
-        WINNOWING_KIND, build_chunk_index, compare_feature_sequences, decode, prepare,
-        winnowing_features,
+        WINNOWING_KIND, build_chunk_index, compare_feature_sequences, prepare, winnowing_features,
     },
     detection::{
         AlgorithmDescriptor, Comparator, ComparisonEvidence, DetectionAlgorithm, DetectionError,
-        PreparedFile, Preprocessor, RetrievalIndex, Retriever,
+        FeatureWeightProvider, PreparedFile, Preprocessor, RetrievalIndex, Retriever,
     },
     domain::FileCategory,
     parser::ParsedFile,
@@ -24,8 +23,8 @@ impl DetectionAlgorithm for WinnowingAlgorithm {
     fn descriptor(&self) -> AlgorithmDescriptor {
         AlgorithmDescriptor {
             id: "winnowing-fingerprint",
-            display_name: "稀疏指纹覆盖率",
-            description: "按文本块召回稀疏指纹，再计算当前文件中连续指纹链的覆盖比例。",
+            display_name: "IDF 稀疏指纹覆盖率",
+            description: "按来源语料的指纹稀有度过滤公共片段，再计算连续指纹链的 Token 覆盖率。",
             supported_categories: &SUPPORTED_CATEGORIES,
         }
     }
@@ -72,15 +71,9 @@ impl Comparator for FingerprintComparator {
         &self,
         query: &PreparedFile,
         source: &PreparedFile,
+        weights: &dyn FeatureWeightProvider,
     ) -> Result<ComparisonEvidence, DetectionError> {
-        let query = decode(query, WINNOWING_KIND)?;
-        let source = decode(source, WINNOWING_KIND)?;
-        let (similarity, risk_regions) =
-            compare_feature_sequences(&query.features, &source.features, 2);
-        Ok(ComparisonEvidence {
-            similarity,
-            risk_regions,
-        })
+        compare_feature_sequences(query, source, WINNOWING_KIND, 2, weights)
     }
 }
 

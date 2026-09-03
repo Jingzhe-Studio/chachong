@@ -24,8 +24,8 @@ impl DetectionAlgorithm for TextDuplicateAlgorithm {
     fn descriptor(&self) -> AlgorithmDescriptor {
         AlgorithmDescriptor {
             id: "shingle-minhash",
-            display_name: "长词组覆盖率",
-            description: "按段落和代码块召回候选，再计算当前文件中连续长词组的覆盖比例。",
+            display_name: "IDF 长词组覆盖率",
+            description: "按来源语料的词组稀有度过滤公共文本，再计算连续长词组的 Token 覆盖率。",
             supported_categories: &SUPPORTED_CATEGORIES,
         }
     }

@@ -379,26 +379,146 @@ button:disabled {
   font-size: 14px;
 }
 
-.overview-placeholder {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+.work-item-overview {
   margin: 22px 0 27px;
-  padding: 15px 17px;
-  border: 1px dashed var(--border-strong);
-  color: #333;
+  padding: 18px;
+  border: 1px solid var(--border);
   background: var(--surface-subtle);
 }
 
-.overview-placeholder span {
-  font-size: 13px;
+.overview-heading,
+.overview-title-row {
+  display: flex;
+  align-items: center;
+}
+
+.overview-heading {
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 15px;
+}
+
+.overview-title-row {
+  gap: 9px;
+}
+
+.overview-heading h3 {
+  margin: 0;
+  font-size: 15px;
   font-weight: 650;
 }
 
-.overview-placeholder p {
-  margin: 0;
+.overview-heading p {
+  margin: 5px 0 0;
   color: var(--muted);
+  font-size: 11px;
+}
+
+.overview-heading .overview-state {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.metric-algorithm:not(:empty) {
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--muted);
+  background: #fff;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.similarity-scope-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.similarity-scope-grid.is-muted {
+  opacity: 0.55;
+}
+
+.similarity-scope-card {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.similarity-scope-card h4 {
+  margin: 0 0 13px;
+  color: #444;
   font-size: 12px;
+  font-weight: 650;
+}
+
+.scope-primary-metric {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding-bottom: 14px;
+}
+
+.scope-primary-metric strong {
+  font-size: 32px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 680;
+  letter-spacing: -1px;
+}
+
+.scope-primary-metric span,
+.scope-metric-list dt,
+.scope-highest-source small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.scope-metric-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--border);
+}
+
+.scope-metric-list > div {
+  min-width: 0;
+  padding-top: 11px;
+}
+
+.scope-metric-list > div:nth-child(2) {
+  padding-left: 14px;
+  border-left: 1px solid var(--border);
+}
+
+.scope-metric-list dt {
+  margin-bottom: 4px;
+}
+
+.scope-metric-list dd {
+  margin: 0;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+.scope-metric-list .scope-highest-source {
+  grid-column: 1 / -1;
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid var(--border);
+}
+
+.scope-highest-source dd {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.scope-highest-source small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .result-file-row {
@@ -438,10 +558,33 @@ button:disabled {
 .file-result-meta {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 0;
   padding: 0 15px;
   color: var(--muted);
   font-size: 12px;
+}
+
+.file-scope-result {
+  display: grid;
+  min-width: 112px;
+  gap: 2px;
+  padding: 2px 13px;
+  border-left: 1px solid var(--border);
+}
+
+.file-scope-result:first-child {
+  border-left: 0;
+}
+
+.file-scope-result strong {
+  color: var(--text);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.file-scope-result small {
+  color: var(--muted);
+  font-size: 9px;
 }
 
 .file-result-heading {
@@ -719,7 +862,35 @@ button:disabled {
 
 .match-list {
   display: grid;
+  gap: 14px;
+}
+
+.match-group {
+  display: grid;
   gap: 2px;
+}
+
+.match-group + .match-group {
+  padding-top: 13px;
+  border-top: 1px solid var(--border);
+}
+
+.match-group-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5px 6px;
+  color: var(--muted);
+}
+
+.match-group-heading strong {
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.match-group-heading span {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
 }
 
 .match-item {
@@ -1002,5 +1173,10 @@ button:disabled {
 
   .match-workspace {
     grid-template-columns: 245px minmax(0, 1fr);
+  }
+
+  .file-scope-result {
+    min-width: 96px;
+    padding-inline: 9px;
   }
 }

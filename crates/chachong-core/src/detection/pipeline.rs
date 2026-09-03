@@ -1,6 +1,21 @@
 use crate::parser::ParsedFile;
 
-use super::{ComparisonEvidence, DetectionAlgorithm, DetectionError, PreparedFile, RetrievalIndex};
+use super::{
+    ComparisonEvidence, DetectionAlgorithm, DetectionError, FeatureWeightProvider, PreparedFile,
+    RetrievalIndex,
+};
+
+struct UniformFeatureWeights;
+
+impl FeatureWeightProvider for UniformFeatureWeights {
+    fn feature_weight(&self, _hash: u64) -> f32 {
+        1.0
+    }
+
+    fn evidence_floor(&self) -> f32 {
+        0.0
+    }
+}
 
 pub struct DetectionPipeline<'algorithm> {
     algorithm: &'algorithm dyn DetectionAlgorithm,
@@ -27,6 +42,17 @@ impl<'algorithm> DetectionPipeline<'algorithm> {
         query: &PreparedFile,
         source: &PreparedFile,
     ) -> Result<ComparisonEvidence, DetectionError> {
-        self.algorithm.comparator().compare(query, source)
+        self.algorithm
+            .comparator()
+            .compare(query, source, &UniformFeatureWeights)
+    }
+
+    pub fn compare_with_weights(
+        &self,
+        query: &PreparedFile,
+        source: &PreparedFile,
+        weights: &dyn FeatureWeightProvider,
+    ) -> Result<ComparisonEvidence, DetectionError> {
+        self.algorithm.comparator().compare(query, source, weights)
     }
 }
