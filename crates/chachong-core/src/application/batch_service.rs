@@ -9,7 +9,10 @@ use crate::{
         FileId, ManagedFile, ParseStatus, TextRange, WorkItemId, WorkItemSummary,
     },
     importing::discover_batch,
-    parser::{CodeTextParser, ContentParser, LiteParseDocumentParser, ParsedFile, SourceLocation},
+    parser::{
+        CodeTextParser, ContentParser, LiteParseDocumentParser, ParsedFile, SourceLocation,
+        parse_in_background,
+    },
     storage::{
         InsertBatchFileOutcome, NewBatchFile, NewComparison, ObjectStore, SqliteStore,
         StorageError, StorageLayout, StoredMatchSummary,
@@ -681,6 +684,13 @@ impl BatchService {
         }
     }
 
+    fn parser_handle(&self, category: FileCategory) -> Arc<dyn ContentParser> {
+        match category {
+            FileCategory::Document => Arc::clone(&self.document_parser),
+            FileCategory::Code => Arc::clone(&self.code_parser),
+        }
+    }
+
     async fn parse_file<F>(
         &self,
         batch_id: BatchId,
@@ -691,35 +701,32 @@ impl BatchService {
     where
         F: FnMut(&BatchFileProgress) + Send,
     {
-        let parser = self.parser_for(file.category);
-        let parsing = self.store.update_parse_status(
-            file.id,
-            ParseStatus::Parsing,
-            parser.id(),
-            None,
-            None,
-        )?;
+        let parser = self.parser_handle(file.category);
+        let parser_id = parser.id();
+        let parsing =
+            self.store
+                .update_parse_status(file.id, ParseStatus::Parsing, parser_id, None, None)?;
         progress(&BatchFileProgress {
             batch_id,
             work_item_id,
             file: parsing.clone(),
         });
         let source = self.objects.object_path(&file.object_key);
-        let parsed_key = self.objects.parsed_key(parser.id(), &file.content_hash);
-        let result = parser.parse(&parsing, &source).await;
+        let parsed_key = self.objects.parsed_key(parser_id, &file.content_hash);
+        let result = parse_in_background(parser, parsing.clone(), source).await;
         let final_file = match result {
             Ok(parsed) => match self.objects.write_parsed(&parsed_key, &parsed).await {
                 Ok(()) => self.store.update_parse_status(
                     file.id,
                     ParseStatus::Ready,
-                    parser.id(),
+                    parser_id,
                     Some(&parsed_key),
                     None,
                 )?,
                 Err(error) => self.store.update_parse_status(
                     file.id,
                     ParseStatus::Failed,
-                    parser.id(),
+                    parser_id,
                     None,
                     Some(&format!("保存解析结果失败：{error}")),
                 )?,
@@ -727,7 +734,7 @@ impl BatchService {
             Err(error) => self.store.update_parse_status(
                 file.id,
                 ParseStatus::Failed,
-                parser.id(),
+                parser_id,
                 None,
                 Some(&error.to_string()),
             )?,

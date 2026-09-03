@@ -615,7 +615,7 @@ dependencies = [
 
 [[package]]
 name = "chachong-core"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "async-trait",
  "jieba-rs",
@@ -633,7 +633,7 @@ dependencies = [
 
 [[package]]
 name = "chachong-desktop"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "chachong-core",
  "serde",
