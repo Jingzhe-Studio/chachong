@@ -24,7 +24,7 @@ impl DetectionAlgorithm for TokenCosineAlgorithm {
         AlgorithmDescriptor {
             id: "token-cosine",
             display_name: "IDF 短词组覆盖率",
-            description: "按来源语料的词组稀有度过滤公共文本，再计算连续短词组的 Token 覆盖率。",
+            description: "自动忽略常见的公共内容，查找文件之间连续重复的短片段，并以单个文件为单位给出相似度。",
             supported_categories: &SUPPORTED_CATEGORIES,
         }
     }

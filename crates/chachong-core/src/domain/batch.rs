@@ -50,7 +50,7 @@ pub struct WorkItem {
     pub file_ids: Vec<FileId>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BatchSummary {
     pub id: BatchId,
@@ -61,6 +61,7 @@ pub struct BatchSummary {
     pub detection_status: DetectionStatus,
     pub algorithm_id: Option<String>,
     pub detection_error: Option<String>,
+    pub highest_file_similarity: Option<f32>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
