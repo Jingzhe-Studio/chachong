@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "arxivSources": [
+    {
+      "id": "arXiv:1604.05171v1",
+      "title": "Physical description of the blood flow from the internal jugular vein to the right atrium of the heart: new ultrasound application perspectives",
+      "authors": [
+        "Francesco Sisini"
+      ],
+      "url": "https://export.arxiv.org/pdf/1604.05171v1",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "id": "arXiv:1604.05177v1",
+      "title": "Quantitative analysis of jugular venous pulse obtained by using a general-purpose ultrasound scanner",
+      "authors": [
+        "Francesco Sisini"
+      ],
+      "url": "https://export.arxiv.org/pdf/1604.05177v1",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "id": "arXiv:2002.09857v1",
+      "title": "Verifying Array Manipulating Programs with Full-Program Induction",
+      "authors": [
+        "Supratik Chakraborty",
+        "Ashutosh Gupta",
+        "Divyesh Unadkat"
+      ],
+      "url": "https://export.arxiv.org/pdf/2002.09857v1",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  ],
+  "githubSource": {
+    "repository": "https://github.com/TheAlgorithms/Python",
+    "commit": "dc7d5ebfa4f29feac8d7d1cc485a25a90960b3aa",
+    "license": "MIT"
+  },
+  "partialPdfPages": 3,
+  "sourceSha256": {
+    "arXiv:1604.05171v1": "5c6d5110b37d6a9bddf277bac1eb0a3045f29b5212bff7c8ba7fc4382172802e",
+    "arXiv:1604.05177v1": "a1c975e25bb3170dd776a1dc39a3a77dc6b256e654315bf2cc84909178ed4b96",
+    "arXiv:2002.09857v1": "722701dad9612ea49c415887981c9291f49db9a73427e839c2c243687da67013",
+    "TheAlgorithms/Python:sorts/merge_sort.py": "7a75a49451a2bb9f01a2c4579850fcf8674e0a18b96408842b93f027efa5121c",
+    "TheAlgorithms/Python:searches/binary_search.py": "40edb392027b4b9431369cf105f4c610eb406e0792dc6ccffdabb7d5c7453f74",
+    "TheAlgorithms/Python:maths/euclidean_distance.py": "00d03d949cc63271148cc57ad2ff164903a57b2e811ff8531f9ebf3260e770a2",
+    "TheAlgorithms/Python:LICENSE.md": "4395a1dc4bda1d6054c45b4d1230c709c7398e6d66f1d0aff4b22d95973bea56"
+  },
+  "files": [
+    {
+      "path": "batch/student_01_exact_copy/report.pdf",
+      "bytes": 201939,
+      "sha256": "5c6d5110b37d6a9bddf277bac1eb0a3045f29b5212bff7c8ba7fc4382172802e"
+    },
+    {
+      "path": "batch/student_01_exact_copy/src/merge_sort.py",
+      "bytes": 1725,
+      "sha256": "7a75a49451a2bb9f01a2c4579850fcf8674e0a18b96408842b93f027efa5121c"
+    },
+    {
+      "path": "batch/student_02_partial_and_modified/report.pdf",
+      "bytes": 484476,
+      "sha256": "711fff35f94fa121f7286beb58b6cbe41602cac18f4a133fbfea2572990fd6ec"
+    },
+    {
+      "path": "batch/student_02_partial_and_modified/src/binary_search_adapted.py",
+      "bytes": 15874,
+      "sha256": "f859400a29c3f173c8c8e117821c31f5b85d4b4f9880bb46b7982e94bffc9ee1"
+    },
+    {
+      "path": "batch/student_02_partial_and_modified/src/peer_shared.py",
+      "bytes": 1153,
+      "sha256": "d67a495886aee9a1578d1573e5665de33e85b8f2a4b54a7f886589810aee1ad9"
+    },
+    {
+      "path": "batch/student_03_peer_copy/report.pdf",
+      "bytes": 327953,
+      "sha256": "722701dad9612ea49c415887981c9291f49db9a73427e839c2c243687da67013"
+    },
+    {
+      "path": "batch/student_03_peer_copy/src/peer_shared_copy.py",
+      "bytes": 1153,
+      "sha256": "d67a495886aee9a1578d1573e5665de33e85b8f2a4b54a7f886589810aee1ad9"
+    },
+    {
+      "path": "batch/student_04_clean_code/euclidean_distance.py",
+      "bytes": 1934,
+      "sha256": "00d03d949cc63271148cc57ad2ff164903a57b2e811ff8531f9ebf3260e770a2"
+    },
+    {
+      "path": "metadata/expected_matches.json",
+      "bytes": 1936,
+      "sha256": "7efa034e2cf4953e8b3f96b8bc83eea71a14bae659b0fc87955e965f8f207fcc"
+    },
+    {
+      "path": "metadata/SOURCES.md",
+      "bytes": 1900,
+      "sha256": "e4e56032e18bcca54413a652618b6260f9dcb1a1ce7bdb2425f1a2157736dcf6"
+    },
+    {
+      "path": "metadata/TheAlgorithms-Python-LICENSE.md",
+      "bytes": 1095,
+      "sha256": "4395a1dc4bda1d6054c45b4d1230c709c7398e6d66f1d0aff4b22d95973bea56"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1329,
+      "sha256": "513d16d8842580094d515c9bdfbf23940c090d7b8938d81d691d290c83784b2b"
+    },
+    {
+      "path": "reference_library/code/searches/binary_search.py",
+      "bytes": 14590,
+      "sha256": "40edb392027b4b9431369cf105f4c610eb406e0792dc6ccffdabb7d5c7453f74"
+    },
+    {
+      "path": "reference_library/code/sorts/merge_sort.py",
+      "bytes": 1725,
+      "sha256": "7a75a49451a2bb9f01a2c4579850fcf8674e0a18b96408842b93f027efa5121c"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604.05171v1_blood_flow.pdf",
+      "bytes": 201939,
+      "sha256": "5c6d5110b37d6a9bddf277bac1eb0a3045f29b5212bff7c8ba7fc4382172802e"
+    },
+    {
+      "path": "reference_library/documents/arxiv_1604.05177v1_jugular_pulse.pdf",
+      "bytes": 495234,
+      "sha256": "a1c975e25bb3170dd776a1dc39a3a77dc6b256e654315bf2cc84909178ed4b96"
+    }
+  ]
+}

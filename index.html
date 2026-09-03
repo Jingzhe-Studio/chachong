@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>查重工作台</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <nav class="tabs" aria-label="主导航">
+        <button class="tab is-active" data-tab="batches" type="button">作业批次</button>
+        <button class="tab" data-tab="references" type="button">参考库</button>
+      </nav>
+
+      <main>
+        <section class="panel is-active" data-panel="batches">
+          <div id="batch-list-view" class="batch-view">
+            <div class="panel-heading">
+              <div>
+                <h2>作业批次</h2>
+                <p>选择批次根目录；第一层目录会成为一份包含多个文件的作业项。</p>
+              </div>
+              <button id="import-batch" class="primary-action" type="button">导入批次</button>
+            </div>
+            <p id="batch-import-state" class="operation-state"></p>
+            <div id="batch-list" class="batch-list"></div>
+            <div id="batch-list-empty" class="empty-state">
+              <h3>还没有作业批次</h3>
+              <p>导入根目录，开始组织并解析本次作业材料。</p>
+            </div>
+          </div>
+
+          <div id="batch-detail-view" class="batch-view is-hidden">
+            <button id="back-to-batches" class="back-action" type="button">返回批次</button>
+            <div class="detail-heading batch-detail-heading">
+              <div>
+                <div class="title-row">
+                  <h2 id="batch-name"></h2>
+                  <span id="batch-status" class="parse-status"></span>
+                </div>
+                <p id="batch-meta"></p>
+              </div>
+              <div class="detail-actions">
+                <button id="rename-batch" class="secondary-action" type="button">重命名</button>
+                <button id="delete-batch" class="danger-action" type="button">删除批次</button>
+              </div>
+            </div>
+            <div class="detection-toolbar">
+              <label>
+                <span>查重算法</span>
+                <select id="algorithm-select"></select>
+              </label>
+              <button id="run-detection" class="primary-action" type="button">开始查重</button>
+              <div>
+                <strong id="algorithm-description"></strong>
+                <span id="detection-progress"></span>
+              </div>
+            </div>
+            <div class="subsection-heading">
+              <h3>作业项</h3>
+            </div>
+            <div id="work-item-list" class="work-item-list"></div>
+          </div>
+
+          <div id="work-item-view" class="batch-view is-hidden">
+            <button id="back-to-batch" class="back-action" type="button">返回批次</button>
+            <div class="detail-heading batch-detail-heading">
+              <div>
+                <h2 id="work-item-name"></h2>
+                <p id="work-item-meta"></p>
+              </div>
+            </div>
+            <div class="overview-placeholder">
+              <span>总体指标</span>
+              <p>该区域保留给后续的作业项聚合指标定义。</p>
+            </div>
+            <div class="subsection-heading">
+              <h3>文件结果</h3>
+            </div>
+            <div id="work-item-files" class="result-file-list"></div>
+          </div>
+
+          <div id="file-result-view" class="batch-view is-hidden">
+            <button id="back-to-work-item" class="back-action" type="button">返回作业项</button>
+            <div class="file-result-heading">
+              <div>
+                <h2 id="result-file-name"></h2>
+                <p id="result-file-path"></p>
+              </div>
+            </div>
+            <div class="match-workspace">
+              <aside class="match-sidebar">
+                <div class="subsection-heading">
+                  <h3>匹配来源</h3>
+                  <span id="match-count"></span>
+                </div>
+                <div id="match-list" class="match-list"></div>
+                <p id="match-list-empty" class="sidebar-empty">没有达到阈值的匹配来源</p>
+              </aside>
+              <section class="comparison-view">
+                <div id="comparison-empty" class="detail-placeholder compact">
+                  <h3>选择一个匹配来源</h3>
+                  <p>这里仅标注双方原文中的高风险位置，不生成逐行差异视图。</p>
+                </div>
+                <div id="comparison-content" class="is-hidden">
+                  <div class="comparison-heading">
+                    <div>
+                      <strong id="comparison-title"></strong>
+                      <span id="comparison-score"></span>
+                    </div>
+                    <small id="risk-summary"></small>
+                  </div>
+                  <div id="risk-navigation" class="risk-navigation">
+                    <label for="risk-region-select">高风险区域</label>
+                    <select id="risk-region-select"></select>
+                    <button id="previous-risk" class="secondary-action" type="button">上一处</button>
+                    <button id="next-risk" class="secondary-action" type="button">下一处</button>
+                  </div>
+                  <div class="text-comparison">
+                    <article>
+                      <h4 id="query-text-title">当前文件</h4>
+                      <pre id="query-text"></pre>
+                    </article>
+                    <article>
+                      <h4 id="source-text-title">来源文件</h4>
+                      <pre id="source-text"></pre>
+                    </article>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel reference-panel" data-panel="references">
+          <div class="reference-layout">
+            <aside class="library-sidebar">
+              <div class="sidebar-heading">
+                <h2>参考库</h2>
+                <button id="create-library" class="secondary-action" type="button">新建参考库</button>
+              </div>
+              <div id="library-list" class="library-list"></div>
+              <p id="library-list-empty" class="sidebar-empty">还没有参考库</p>
+            </aside>
+
+            <section class="library-detail">
+              <div id="library-unselected" class="detail-placeholder">
+                <h3>选择或创建参考库</h3>
+                <p>参考库由用户手动维护，不会自动收录批次文件。</p>
+              </div>
+
+              <div id="library-content" class="library-content is-hidden">
+                <div class="detail-heading">
+                  <div>
+                    <div class="title-row">
+                      <h2 id="library-name"></h2>
+                      <span id="library-category" class="category-badge"></span>
+                    </div>
+                    <p id="library-file-count"></p>
+                  </div>
+                  <div class="detail-actions">
+                    <button id="rename-library" class="secondary-action" type="button">重命名</button>
+                    <button id="delete-library" class="danger-action" type="button">删除库</button>
+                  </div>
+                </div>
+
+                <div class="file-toolbar">
+                  <div>
+                    <button id="import-files" class="primary-action" type="button">导入文件</button>
+                    <button id="import-folder" class="secondary-action" type="button">导入文件夹</button>
+                  </div>
+                  <span id="import-state" class="muted-text"></span>
+                </div>
+
+                <div class="file-table-wrap">
+                  <table class="file-table">
+                    <thead>
+                      <tr>
+                        <th>文件</th>
+                        <th>大小</th>
+                        <th>状态</th>
+                        <th><span class="sr-only">操作</span></th>
+                      </tr>
+                    </thead>
+                    <tbody id="reference-files"></tbody>
+                  </table>
+                  <div id="reference-files-empty" class="table-empty">
+                    <p>这个参考库还没有文件</p>
+                    <span>可导入文件，或递归导入整个目录。</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="library-dialog" class="library-dialog">
+      <form id="library-form">
+        <div class="dialog-heading">
+          <h2 id="library-dialog-title">新建参考库</h2>
+          <button id="close-library-dialog" class="dialog-close" type="button">关闭</button>
+        </div>
+        <label>
+          <span>名称</span>
+          <input id="library-name-input" maxlength="80" autocomplete="off" required />
+        </label>
+        <label>
+          <span>类型</span>
+          <select id="library-category-input">
+            <option value="document">文档库</option>
+            <option value="code">代码库</option>
+          </select>
+        </label>
+        <p id="library-form-error" class="form-error"></p>
+        <div class="dialog-actions">
+          <button id="cancel-library-dialog" class="secondary-action" type="button">取消</button>
+          <button class="primary-action" type="submit">保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

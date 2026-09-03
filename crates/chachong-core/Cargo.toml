@@ -1,0 +1,22 @@
+[package]
+name = "chachong-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+jieba-rs.workspace = true
+liteparse.workspace = true
+rusqlite.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+walkdir.workspace = true
+
+[dev-dependencies]
+lopdf.workspace = true
+tempfile.workspace = true

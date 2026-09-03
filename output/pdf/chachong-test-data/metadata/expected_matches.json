@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "notes": [
+    "Scores vary by algorithm; relations and ordering are the assertions.",
+    "A stored match requires similarity >= 0.15 and at least 16 matched bytes."
+  ],
+  "cases": [
+    {
+      "query": "batch/student_01_exact_copy/report.pdf",
+      "scope": "reference",
+      "source": "reference_library/documents/arxiv_1604.05171v1_blood_flow.pdf",
+      "expectation": "exact-copy; similarity should be 1.0"
+    },
+    {
+      "query": "batch/student_01_exact_copy/src/merge_sort.py",
+      "scope": "reference",
+      "source": "reference_library/code/sorts/merge_sort.py",
+      "expectation": "exact-copy; similarity should be 1.0"
+    },
+    {
+      "query": "batch/student_02_partial_and_modified/report.pdf",
+      "scope": "reference",
+      "source": "reference_library/documents/arxiv_1604.05177v1_jugular_pulse.pdf",
+      "expectation": "pages 1-3 reused; should produce highlighted regions"
+    },
+    {
+      "query": "batch/student_02_partial_and_modified/src/binary_search_adapted.py",
+      "scope": "reference",
+      "source": "reference_library/code/searches/binary_search.py",
+      "expectation": "identifier rewrite; strongest expected reference-code match"
+    },
+    {
+      "query": "batch/student_02_partial_and_modified/src/peer_shared.py",
+      "scope": "batch",
+      "source": "batch/student_03_peer_copy/src/peer_shared_copy.py",
+      "expectation": "peer copy; exact apart from the file name"
+    },
+    {
+      "query": "batch/student_03_peer_copy/report.pdf",
+      "scope": "reference",
+      "source": null,
+      "expectation": "cross-domain calibration probe; all algorithms should reject reference-library matches"
+    },
+    {
+      "query": "batch/student_04_clean_code/euclidean_distance.py",
+      "scope": "reference",
+      "source": null,
+      "expectation": "code calibration probe; all algorithms should reject reference-library matches"
+    }
+  ]
+}
