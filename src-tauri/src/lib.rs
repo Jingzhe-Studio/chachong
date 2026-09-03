@@ -48,7 +48,7 @@ fn app_info(core: tauri::State<'_, AppCore>) -> AppInfo {
         .collect();
 
     AppInfo {
-        name: "查重工作台",
+        name: "查重工具",
         algorithms,
     }
 }

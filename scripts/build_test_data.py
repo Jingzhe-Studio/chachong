@@ -74,7 +74,7 @@ REFERENCE_DOCUMENT_COUNT = 100
 REFERENCE_CODE_COUNT = 100
 ARXIV_EXCERPTS_PER_SOURCE = 49
 
-DATASET_README = """# 查重工作台测试数据
+DATASET_README = """# 查重工具测试数据
 
 这是一组可直接导入桌面应用的离线测试数据。文档参考库含 100 份 PDF，代码
 参考库含 100 个 Python 文件。外部材料仅选用明确允许再利用的 CC BY 4.0 论文

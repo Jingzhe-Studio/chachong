@@ -173,7 +173,7 @@ interface ReferenceImportSummary {
   skippedItems: Array<{ path: string; reason: string }>;
 }
 
-let appInfo: AppInfo = { name: "查重工作台", algorithms: [] };
+let appInfo: AppInfo = { name: "查重工具", algorithms: [] };
 let batches: BatchSummary[] = [];
 let batchView: BatchView = "list";
 let selectedBatchId: number | null = null;
