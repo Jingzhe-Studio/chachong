@@ -117,7 +117,6 @@ impl SqliteStore {
                 work_item_count: row.get::<_, i64>(5)? as u64,
                 file_count: row.get::<_, i64>(6)? as u64,
                 ready_file_count: row.get::<_, i64>(7)? as u64,
-                highest_file_similarity: None,
             })
         })?;
         rows.collect::<Result<Vec<_>, _>>().map_err(Into::into)

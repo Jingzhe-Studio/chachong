@@ -23,17 +23,7 @@
                 <h2>作业批次</h2>
                 <p>选择批次根目录；第一层目录会成为一份包含多个文件的作业项。</p>
               </div>
-              <div class="batch-heading-actions">
-                <label class="batch-sort-control">
-                  <span>排序</span>
-                  <select id="batch-sort">
-                    <option value="similarity-desc">最高文件相似度：高到低</option>
-                    <option value="similarity-asc">最高文件相似度：低到高</option>
-                    <option value="recent">最近更新</option>
-                  </select>
-                </label>
-                <button id="import-batch" class="primary-action" type="button">导入批次</button>
-              </div>
+              <button id="import-batch" class="primary-action" type="button">导入批次</button>
             </div>
             <p id="batch-import-state" class="operation-state"></p>
             <div id="batch-list" class="batch-list"></div>
@@ -90,7 +80,7 @@
                     <h3 id="overview-title">总体指标</h3>
                     <span id="overview-algorithm" class="metric-algorithm"></span>
                   </div>
-                  <p>分别展示全部文件、代码文件和文档文件中的最高相似度；同批次与参考库分开。</p>
+                  <p>总体相似度按 IDF 降噪后的匹配 Token 并集计算；同批次与参考库分开，同一内容只计一次。</p>
                 </div>
                 <p id="overview-state" class="overview-state">完成查重后生成指标</p>
               </div>
@@ -98,34 +88,48 @@
                 <article class="similarity-scope-card">
                   <h4>同批次来源</h4>
                   <div class="scope-primary-metric">
-                    <strong id="batch-highest-file-similarity">—</strong>
-                    <span>最高文件相似度</span>
+                    <strong id="batch-overall-similarity">—</strong>
+                    <span>总体相似度</span>
                   </div>
                   <dl class="scope-metric-list">
                     <div>
-                      <dt>代码相似度</dt>
-                      <dd id="batch-code-similarity">—</dd>
+                      <dt>匹配 Token / 总 Token</dt>
+                      <dd id="batch-matched-units">—</dd>
                     </div>
                     <div>
-                      <dt>文档相似度</dt>
-                      <dd id="batch-document-similarity">—</dd>
+                      <dt>相似作业项</dt>
+                      <dd id="batch-source-count">—</dd>
+                    </div>
+                    <div class="scope-highest-source">
+                      <dt>单一来源最高相似度</dt>
+                      <dd>
+                        <strong id="batch-highest-similarity">—</strong>
+                        <small id="batch-highest-source"></small>
+                      </dd>
                     </div>
                   </dl>
                 </article>
                 <article class="similarity-scope-card">
                   <h4>参考库来源</h4>
                   <div class="scope-primary-metric">
-                    <strong id="reference-highest-file-similarity">—</strong>
-                    <span>最高文件相似度</span>
+                    <strong id="reference-overall-similarity">—</strong>
+                    <span>总体相似度</span>
                   </div>
                   <dl class="scope-metric-list">
                     <div>
-                      <dt>代码相似度</dt>
-                      <dd id="reference-code-similarity">—</dd>
+                      <dt>匹配 Token / 总 Token</dt>
+                      <dd id="reference-matched-units">—</dd>
                     </div>
                     <div>
-                      <dt>文档相似度</dt>
-                      <dd id="reference-document-similarity">—</dd>
+                      <dt>相似参考文件</dt>
+                      <dd id="reference-source-count">—</dd>
+                    </div>
+                    <div class="scope-highest-source">
+                      <dt>单一来源最高相似度</dt>
+                      <dd>
+                        <strong id="reference-highest-similarity">—</strong>
+                        <small id="reference-highest-source"></small>
+                      </dd>
                     </div>
                   </dl>
                 </article>

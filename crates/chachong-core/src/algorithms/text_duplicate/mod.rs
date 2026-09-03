@@ -25,7 +25,7 @@ impl DetectionAlgorithm for TextDuplicateAlgorithm {
         AlgorithmDescriptor {
             id: "shingle-minhash",
             display_name: "IDF 长词组覆盖率",
-            description: "自动忽略常见的公共内容，查找文件之间较长且连续重复的片段，并以单个文件为单位给出相似度。",
+            description: "按来源语料的词组稀有度过滤公共文本，再计算连续长词组的 Token 覆盖率。",
             supported_categories: &SUPPORTED_CATEGORIES,
         }
     }

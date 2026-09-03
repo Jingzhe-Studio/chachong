@@ -127,29 +127,6 @@ button:disabled {
   font-size: 13px;
 }
 
-.batch-heading-actions {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-}
-
-.batch-sort-control {
-  display: grid;
-  gap: 5px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.batch-sort-control select {
-  min-height: 36px;
-  padding: 7px 28px 7px 9px;
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  color: var(--text);
-  background: #fff;
-}
-
 .primary-action,
 .secondary-action,
 .danger-action {
@@ -266,29 +243,6 @@ button:disabled {
 .file-table small {
   color: var(--muted);
   font-size: 12px;
-}
-
-.batch-card-result {
-  display: grid;
-  justify-items: end;
-  gap: 7px;
-}
-
-.batch-card-metric {
-  display: grid;
-  justify-items: end;
-  gap: 1px;
-}
-
-.batch-card .batch-card-metric strong {
-  margin: 0;
-  font-size: 20px;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.batch-card .batch-card-metric small {
-  font-size: 9px;
 }
 
 .back-action,
@@ -514,7 +468,8 @@ button:disabled {
 }
 
 .scope-primary-metric span,
-.scope-metric-list dt {
+.scope-metric-list dt,
+.scope-highest-source small {
   color: var(--muted);
   font-size: 10px;
 }
@@ -545,6 +500,25 @@ button:disabled {
   font-size: 13px;
   font-variant-numeric: tabular-nums;
   font-weight: 650;
+}
+
+.scope-metric-list .scope-highest-source {
+  grid-column: 1 / -1;
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid var(--border);
+}
+
+.scope-highest-source dd {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.scope-highest-source small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .result-file-row {

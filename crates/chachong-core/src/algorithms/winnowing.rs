@@ -24,7 +24,7 @@ impl DetectionAlgorithm for WinnowingAlgorithm {
         AlgorithmDescriptor {
             id: "winnowing-fingerprint",
             display_name: "IDF 稀疏指纹覆盖率",
-            description: "自动忽略常见的公共内容，从文件中抽取有代表性的连续片段进行比较，并以单个文件为单位给出相似度。",
+            description: "按来源语料的指纹稀有度过滤公共片段，再计算连续指纹链的 Token 覆盖率。",
             supported_categories: &SUPPORTED_CATEGORIES,
         }
     }
